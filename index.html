@@ -95,6 +95,7 @@
     font-size: 13px; display: flex; align-items: center; justify-content: center;
   }
   .channel-item .ch-btn:hover { background: var(--bg-light); color: var(--text-primary); }
+  .channel-item .ch-btn.del-btn:hover { background: rgba(242, 63, 67, 0.2); color: var(--red); }
   .channel-item .lock { font-size: 12px; opacity: 0.5; }
 
   .empty-channel-tip {
@@ -638,9 +639,25 @@ function renderChannels() {
       ${ch.password ? '<span class="lock" title="受密码保护">🔒</span>' : ''}
       <span class="ch-actions">
         <button class="ch-btn" onclick="event.stopPropagation(); quickInvite('${ch.id}')" title="复制邀请链接">📨</button>
+        <button class="ch-btn del-btn" onclick="event.stopPropagation(); deleteChannel('${ch.id}')" title="删除房间">🗑️</button>
       </span>
     </div>
   `).join('');
+}
+
+function deleteChannel(channelId) {
+  const ch = state.channels.find(c => c.id === channelId);
+  if (!ch) return;
+  if (!confirm(`确定要从列表中删除房间「${ch.name}」吗？`)) return;
+
+  if (state.currentChannel === channelId) {
+    leaveChannel();
+  }
+
+  state.channels = state.channels.filter(c => c.id !== channelId);
+  saveCustomChannels();
+  renderChannels();
+  showToast(`🗑️ 已删除「${ch.name}」`);
 }
 
 function quickInvite(channelId) {
