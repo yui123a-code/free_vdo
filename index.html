@@ -712,8 +712,8 @@
       <option value="2">流畅标清 (360p · 极弱网络)</option>
     </select>
     <label>视频码率上限 (kbps)</label>
-    <input type="number" id="input-bitrate" value="6000" min="500" max="30000" step="500">
-    <div class="hint">推荐：超清设为 6000~10000；屏幕共享将自适应 12000 原画无损传输</div>
+    <input type="number" id="input-bitrate" value="10000" min="500" max="30000" step="500">
+    <div class="hint">推荐：超清设为 8000~15000；屏幕共享默认 25000 原画无损传输</div>
     <label>VDO.Ninja 服务地址</label>
     <input type="text" id="input-server" value="https://vdo.ninja" placeholder="https://vdo.ninja">
     <div class="hint">默认使用官方公开信令，也可配置自建服务器</div>
@@ -837,7 +837,7 @@ const state = {
   presenceInterval: null,
   server: 'https://vdo.ninja',
   quality: 0, // 0 = 1080p (VDO.Ninja preset), 1 = 720p, 2 = 360p
-  bitrate: 6000,
+  bitrate: 10000,
   members: [],
   channels: [],
   lobbyMessages: [],
@@ -874,12 +874,12 @@ function showMobileRoom() {
     }
   });
 
-  // Upgrade legacy stored settings to 1080p / 6000kbps if stuck on old default 720p/360p
-  if (state.bitrate <= 2500 || state.quality === 2 || state.quality === 1) {
+  // Upgrade legacy stored settings to 1080p / 10000kbps if stuck on old default 720p/360p or lower bitrates
+  if (state.bitrate < 8000 || state.quality === 2 || state.quality === 1) {
     state.quality = 0;
-    state.bitrate = 6000;
+    state.bitrate = 10000;
     localStorage.setItem('freevdo-quality', '0');
-    localStorage.setItem('freevdo-bitrate', '6000');
+    localStorage.setItem('freevdo-bitrate', '10000');
   }
 
   const qualityEl = document.getElementById('input-quality');
@@ -1117,9 +1117,27 @@ function generateInviteLink(channel) {
 
 function generateVDOLink(channel) {
   const roomName = 'freevdo_' + channel.id;
-  let url = state.server + '/?room=' + encodeURIComponent(roomName) + '&push&cleanoutput&label=Guest';
-  if (channel.password) url += '&password=' + encodeURIComponent(channel.password);
-  return url;
+  const queryParts = [
+    'room=' + encodeURIComponent(roomName),
+    'push',
+    'cleanoutput',
+    'label=Guest',
+    'quality=0',
+    'width=1920',
+    'height=1080',
+    'bitrate=10000',
+    'videobitrate=10000',
+    'totalroombitrate=40000',
+    'roombitrate=40000',
+    'screensharebitrate=25000',
+    'screensharequality=-1',
+    'screensharecontenthint=detail',
+    'contenthint=detail',
+    'sharperscreen',
+    'scale=100'
+  ];
+  if (channel.password) queryParts.push('password=' + encodeURIComponent(channel.password));
+  return state.server + '/?' + queryParts.join('&');
 }
 
 function parseInviteFromURL() {
@@ -1322,29 +1340,35 @@ function createIframe(channelId) {
   grid.innerHTML = '';
 
   const iframe = document.createElement('iframe');
-  const params = new URLSearchParams();
-  params.set('room', 'freevdo_' + channelId);
-  params.set('label', state.username);
-  // Default audio only on join: prevents camera and screen prompts
-  params.set('videodevice', '0');
-  params.set('push', '');
-  params.set('cleanoutput', '');
-  params.set('transparent', '');
-  params.set('autostart', '');
-
-  // Ultra-HD P2P Video Quality Configuration
-  params.set('quality', state.quality.toString()); // 0 = 1080p Ultra HD
-  params.set('bitrate', state.bitrate.toString()); // 6000 kbps high bitrate
-  params.set('totalroombitrate', '0');             // 0 = unlimited room bandwidth (no artificial throttle)
-  params.set('scale', '100');                      // Force 100% native resolution, disable downsampling
-  params.set('sharperscreen', '');                 // Crystal clear, uncompressed text for screenshare
-  params.set('screensharebitrate', '12000');       // 12 Mbps allocation for screenshare
-  params.set('screensharequality', '-1');          // Maximum detail and sharpness priority
+  
+  // High-Fidelity P2P Video & Screen Sharing Configuration
+  const queryParts = [
+    'room=' + encodeURIComponent('freevdo_' + channelId),
+    'label=' + encodeURIComponent(state.username),
+    'videodevice=0',                 // Pure voice-only on initial join (avoids camera prompt)
+    'push',
+    'cleanoutput',
+    'transparent',
+    'autostart',
+    'quality=' + state.quality,      // 0 = 1080p Ultra HD preset
+    'width=1920',                    // Full 1080p display capture constraint
+    'height=1080',
+    'bitrate=' + state.bitrate,      // 10000 kbps video bitrate
+    'videobitrate=' + state.bitrate,
+    'totalroombitrate=40000',        // 40 Mbps inbound room budget (NEVER 0, which triggers 500 kbps throttle)
+    'roombitrate=40000',             // 40 Mbps outbound peer budget (allows full 1080p transmission to other members)
+    'screensharebitrate=25000',      // 25 Mbps dedicated bandwidth for screenshare
+    'screensharequality=-1',         // Unconstrained maximum detail for screenshare
+    'screensharecontenthint=detail', // Forces WebRTC encoder to prioritize resolution & text sharpness over framerate
+    'contenthint=detail',
+    'sharperscreen',                 // Disables VDO.Ninja downsampling of screen share tiles
+    'scale=100'                      // 100% native resolution rendering (avoids blur)
+  ];
 
   const ch = state.channels.find(c => c.id === channelId);
-  if (ch && ch.password) params.set('password', ch.password);
+  if (ch && ch.password) queryParts.push('password=' + encodeURIComponent(ch.password));
 
-  iframe.src = state.server + '/?' + params.toString().replace(/=(&|$)/g, '$1');
+  iframe.src = state.server + '/?' + queryParts.join('&');
   iframe.allow = 'camera *; microphone *; fullscreen *; display-capture *; autoplay *; encrypted-media *;';
   iframe.setAttribute('allow', 'camera *; microphone *; fullscreen *; display-capture *; autoplay *; encrypted-media *;');
   iframe.setAttribute('allowfullscreen', 'true');
@@ -1488,6 +1512,7 @@ function toggleCam() {
 
 function toggleScreen() {
   state.isScreenOn = !state.isScreenOn;
+  postToIframe({ action: 'togglescreenshare' });
   postToIframe({ action: 'screenshare', value: state.isScreenOn });
   postToIframe({ screenshare: state.isScreenOn });
   if (state.isScreenOn) {
