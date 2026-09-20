@@ -1236,6 +1236,7 @@ function createIframe(channelId) {
   const params = new URLSearchParams();
   params.set('room', 'freevdo_' + channelId);
   params.set('label', state.username);
+  params.set('webcam', ''); // Default video device is Camera, NOT Screen
   params.set('push', '');
   params.set('cleanoutput', '');
   params.set('transparent', '');
@@ -1247,7 +1248,8 @@ function createIframe(channelId) {
   if (ch && ch.password) params.set('password', ch.password);
 
   iframe.src = state.server + '/?' + params.toString().replace(/=(&|$)/g, '$1');
-  iframe.allow = 'camera *; microphone *; fullscreen; display-capture *; autoplay; encrypted-media;';
+  iframe.allow = 'camera *; microphone *; fullscreen *; display-capture *; autoplay *; encrypted-media *;';
+  iframe.setAttribute('allow', 'camera *; microphone *; fullscreen *; display-capture *; autoplay *; encrypted-media *;');
   iframe.setAttribute('allowfullscreen', 'true');
 
   grid.appendChild(iframe);
@@ -1302,10 +1304,35 @@ function postToIframe(msg) {
 }
 
 // ============ Controls ============
-function toggleMic() { state.isMicOn = !state.isMicOn; postToIframe({ mic: state.isMicOn }); updateControlButtons(); }
-function toggleCam() { state.isCamOn = !state.isCamOn; postToIframe({ camera: state.isCamOn }); updateControlButtons(); }
-function toggleScreen() { state.isScreenOn = !state.isScreenOn; postToIframe({ screenshare: state.isScreenOn }); updateControlButtons(); }
-function toggleSpeaker() { state.isSpeakerOn = !state.isSpeakerOn; postToIframe({ speaker: state.isSpeakerOn }); updateControlButtons(); }
+function toggleMic() {
+  state.isMicOn = !state.isMicOn;
+  postToIframe({ action: 'mic', value: state.isMicOn });
+  postToIframe({ mic: state.isMicOn });
+  updateControlButtons();
+}
+
+function toggleCam() {
+  state.isCamOn = !state.isCamOn;
+  postToIframe({ action: 'camera', value: state.isCamOn });
+  postToIframe({ camera: state.isCamOn });
+  updateControlButtons();
+}
+
+function toggleScreen() {
+  state.isScreenOn = !state.isScreenOn;
+  // Send multiple standard commands supported by VDO.Ninja versions
+  postToIframe({ action: 'screenshare', value: state.isScreenOn });
+  postToIframe({ function: 'publishScreen' });
+  postToIframe({ screenshare: state.isScreenOn });
+  updateControlButtons();
+}
+
+function toggleSpeaker() {
+  state.isSpeakerOn = !state.isSpeakerOn;
+  postToIframe({ action: 'speaker', value: state.isSpeakerOn });
+  postToIframe({ speaker: state.isSpeakerOn });
+  updateControlButtons();
+}
 
 function updateControlButtons() {
   const mic = document.getElementById('btn-mic');
