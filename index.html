@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Free VDO — P2P 语音与视频通话</title>
 <style>
   /* ============ Reset & Base ============ */
@@ -27,11 +27,12 @@
   }
   html, body {
     height: 100%;
-    height: 100dvh;
     font-family: var(--font);
     background: var(--bg-dark);
     color: var(--text-primary);
     overflow: hidden;
+    -webkit-text-size-adjust: 100%;
+    touch-action: manipulation;
   }
 
   /* ============ Layout ============ */
@@ -44,32 +45,11 @@
     position: relative;
   }
 
-  /* --- Sidebar Container (Desktop flex, Mobile drawer) --- */
+  /* --- Sidebar Container --- */
   .sidebar-container {
     display: flex;
     height: 100%;
     flex-shrink: 0;
-  }
-
-  /* Mobile Backdrop */
-  .mobile-backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.65);
-    backdrop-filter: blur(2px);
-    z-index: 1499;
-    display: none;
-    opacity: 0;
-    transition: opacity 0.25s ease;
-  }
-  .mobile-backdrop.show {
-    display: block;
-    opacity: 1;
-  }
-
-  /* Mobile Menu Button */
-  .btn-mobile-menu {
-    display: none;
   }
 
   /* --- Server List (left rail) --- */
@@ -97,13 +77,14 @@
     width: 240px; min-width: 240px;
     background: var(--bg-darker);
     display: flex; flex-direction: column;
+    height: 100%;
   }
   .sidebar-header {
     height: 48px; padding: 0 16px;
-    display: flex; align-items: center;
+    display: flex; align-items: center; justify-content: space-between;
     font-weight: 600; font-size: 15px;
     border-bottom: 2px solid var(--bg-darkest);
-    cursor: default;
+    cursor: default; flex-shrink: 0;
   }
   .channel-category {
     padding: 16px 12px 6px 16px;
@@ -119,12 +100,15 @@
   }
   .cat-add-btn:hover { background: var(--bg-light); color: var(--text-primary); }
 
-  .channel-list { overflow-y: auto; padding: 0 8px; }
-  #voice-channels { flex: 1; }
+  .channel-list {
+    overflow-y: auto; padding: 0 8px;
+    -webkit-overflow-scrolling: touch;
+  }
+  #voice-channels { flex: 1; min-height: 0; }
   .channel-item {
     display: flex; align-items: center; gap: 8px;
-    padding: 7px 8px; margin: 1px 0; border-radius: 4px;
-    cursor: pointer; color: var(--text-secondary); font-size: 14.5px;
+    padding: 9px 8px; margin: 2px 0; border-radius: 4px;
+    cursor: pointer; color: var(--text-secondary); font-size: 15px;
     transition: background 0.1s, color 0.1s;
   }
   .channel-item:hover { background: var(--channel-hover); color: var(--text-primary); }
@@ -134,11 +118,10 @@
   }
   .channel-item .name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .channel-item .ch-actions {
-    display: none; gap: 4px;
+    display: flex; gap: 6px;
   }
-  .channel-item:hover .ch-actions { display: flex; }
   .ch-text-btn {
-    padding: 2px 6px; font-size: 11px; border: none; border-radius: 3px;
+    padding: 3px 8px; font-size: 11px; border: none; border-radius: 3px;
     background: var(--bg-light); color: var(--text-secondary); cursor: pointer;
     line-height: 1.4; font-family: var(--font); font-weight: 500;
     transition: background 0.15s, color 0.15s;
@@ -153,9 +136,10 @@
 
   /* User panel */
   .user-panel {
-    height: 52px; padding: 0 8px;
+    height: 52px; padding: 0 10px;
     background: #232428;
     display: flex; align-items: center; gap: 8px;
+    flex-shrink: 0;
   }
   .user-avatar {
     width: 32px; height: 32px; border-radius: 50%;
@@ -175,12 +159,14 @@
   .user-panel-btns button:hover { background: var(--bg-light); color: var(--text-primary); }
 
   /* --- Main content --- */
-  .main-content { flex: 1; display: flex; flex-direction: column; min-width: 0; width: 100%; }
+  .main-content {
+    flex: 1; display: flex; flex-direction: column; min-width: 0; width: 100%; height: 100%;
+  }
   .main-header {
     height: 48px; padding: 0 16px;
     display: flex; align-items: center; gap: 8px;
     border-bottom: 2px solid var(--bg-darkest);
-    font-weight: 600;
+    font-weight: 600; flex-shrink: 0;
   }
   .main-header .header-prefix { font-size: 18px; color: var(--text-muted); margin-right: 2px; }
   .main-header .title { font-size: 15px; }
@@ -196,15 +182,35 @@
   .btn-back-voice { background: var(--accent); color: #fff; }
   .btn-back-voice:hover { background: var(--accent-hover); }
 
+  /* Back to Channels button on mobile */
+  .btn-mobile-back {
+    display: none;
+    align-items: center;
+    gap: 4px;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 6px 8px;
+    border-radius: 4px;
+    margin-right: 2px;
+  }
+  .btn-mobile-back:active { background: var(--bg-light); }
+
   /* --- Content Views --- */
-  .view-container { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+  .view-container {
+    flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; min-height: 0;
+  }
 
   /* 1. Chat Area (Lobby) */
   .chat-area {
-    flex: 1; display: flex; flex-direction: column; overflow: hidden;
+    flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0;
   }
   .chat-messages {
     flex: 1; overflow-y: auto; padding: 20px 20px 10px; display: flex; flex-direction: column; gap: 16px;
+    min-height: 0; -webkit-overflow-scrolling: touch;
   }
   .chat-welcome {
     margin-bottom: 16px; padding-bottom: 20px; border-bottom: 1px solid var(--bg-light);
@@ -234,7 +240,7 @@
   .chat-msg-text { font-size: 14.5px; color: #dbdee1; line-height: 1.5; word-break: break-word; white-space: pre-wrap; }
 
   .chat-input-wrapper {
-    padding: 0 16px 20px;
+    padding: 0 16px 16px; flex-shrink: 0;
   }
   .chat-input-box {
     background: var(--bg-light); border-radius: 8px; padding: 4px 8px 4px 16px;
@@ -248,20 +254,20 @@
   .chat-input-box button {
     background: var(--accent); color: #fff; border: none; border-radius: 4px;
     padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--font);
-    transition: background 0.15s;
+    transition: background 0.15s; flex-shrink: 0;
   }
   .chat-input-box button:hover { background: var(--accent-hover); }
 
   /* Ongoing Voice Banner */
   .ongoing-voice-bar {
     background: #111214; padding: 10px 16px; display: flex; align-items: center;
-    gap: 12px; border-bottom: 1px solid var(--bg-light); font-size: 13px;
+    gap: 12px; border-bottom: 1px solid var(--bg-light); font-size: 13px; flex-shrink: 0;
   }
   .ongoing-voice-bar .voice-live-dot {
     width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 1s infinite;
   }
-  .ongoing-voice-bar .voice-title { color: var(--text-primary); font-weight: 600; }
-  .ongoing-voice-bar .voice-actions { margin-left: auto; display: flex; gap: 8px; }
+  .ongoing-voice-bar .voice-title { color: var(--text-primary); font-weight: 600; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ongoing-voice-bar .voice-actions { display: flex; gap: 8px; flex-shrink: 0; }
   .ongoing-voice-bar button {
     border: none; border-radius: 4px; padding: 5px 12px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: var(--font);
   }
@@ -273,12 +279,12 @@
   /* 2. Video Area (Voice Room) */
   .video-area {
     flex: 1; display: flex; flex-direction: column;
-    padding: 16px; overflow: hidden;
+    padding: 14px; overflow: hidden; min-height: 0;
   }
-  .connected-view { flex: 1; display: flex; flex-direction: column; gap: 12px; }
+  .connected-view { flex: 1; display: flex; flex-direction: column; gap: 12px; min-height: 0; }
   .video-grid {
     flex: 1; display: flex; align-items: center; justify-content: center;
-    position: relative; border-radius: 8px; overflow: hidden; background: #1a1b1e;
+    position: relative; border-radius: 8px; overflow: hidden; background: #1a1b1e; min-height: 0;
   }
   .video-grid iframe {
     width: 100%; height: 100%; border: none; border-radius: 8px;
@@ -287,7 +293,7 @@
   /* Controls bar */
   .controls-bar {
     display: flex; align-items: center; justify-content: center;
-    gap: 12px; padding: 12px; background: var(--bg-darker); border-radius: 8px;
+    gap: 12px; padding: 12px; background: var(--bg-darker); border-radius: 8px; flex-shrink: 0;
   }
   .ctrl-btn {
     width: 48px; height: 48px; border: none; border-radius: 50%;
@@ -305,7 +311,7 @@
   /* Status line */
   .status-line {
     display: flex; align-items: center; gap: 8px;
-    padding: 4px 0; font-size: 13px; color: var(--text-muted);
+    padding: 2px 0; font-size: 13px; color: var(--text-muted); flex-shrink: 0;
   }
   .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
   .status-dot.connecting { background: var(--yellow); animation: pulse 1s infinite; }
@@ -316,15 +322,16 @@
     width: 240px; min-width: 240px;
     background: var(--bg-darker);
     display: flex; flex-direction: column;
+    height: 100%;
   }
   .members-header {
     padding: 16px 16px 8px; font-size: 12px; font-weight: 700;
-    text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.02em;
+    text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.02em; flex-shrink: 0;
   }
-  .member-list { flex: 1; overflow-y: auto; padding: 0 8px; }
+  .member-list { flex: 1; overflow-y: auto; padding: 0 8px; min-height: 0; -webkit-overflow-scrolling: touch; }
   .member-item {
     display: flex; align-items: center; gap: 8px;
-    padding: 4px 8px; border-radius: 4px; margin: 1px 0;
+    padding: 5px 8px; border-radius: 4px; margin: 1px 0;
     cursor: default;
   }
   .member-item:hover { background: var(--channel-hover); }
@@ -409,59 +416,50 @@
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--bg-darkest); border-radius: 3px; }
 
-  /* ============ Mobile Responsive (max-width: 768px) ============ */
+  /* ============ Desktop vs Mobile View Engine ============ */
+  @media (min-width: 769px) {
+    .btn-mobile-back { display: none !important; }
+    .sidebar-container { display: flex !important; }
+    .main-content { display: flex !important; }
+    .members-bar { display: flex !important; }
+  }
+
   @media (max-width: 768px) {
-    /* Hide members sidebar on mobile */
-    .members-bar {
+    /* Hide members list on mobile */
+    .members-bar { display: none !important; }
+
+    /* When in channels mode on mobile: show full-screen channels */
+    .app.mobile-channels-mode .sidebar-container {
+      display: flex !important;
+      width: 100vw;
+      height: 100%;
+    }
+    .app.mobile-channels-mode .sidebar {
+      flex: 1;
+      width: auto;
+      min-width: 0;
+    }
+    .app.mobile-channels-mode .main-content {
       display: none !important;
     }
 
-    /* Transform sidebars into slide-over drawer */
-    .sidebar-container {
-      position: fixed;
-      top: 0;
-      left: -100%;
-      bottom: 0;
-      z-index: 1500;
-      transition: left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 4px 0 24px rgba(0, 0, 0, 0.7);
-      max-width: 86vw;
+    /* When in room/chat mode on mobile: show full-screen room/chat */
+    .app.mobile-room-mode .sidebar-container {
+      display: none !important;
     }
-    .sidebar-container.open {
-      left: 0;
+    .app.mobile-room-mode .main-content {
+      display: flex !important;
+      width: 100vw;
+      height: 100%;
+    }
+    .app.mobile-room-mode .btn-mobile-back {
+      display: inline-flex !important;
     }
 
-    .server-list {
-      width: 62px;
-      min-width: 62px;
-    }
-    .sidebar {
-      width: calc(86vw - 62px);
-      min-width: 210px;
-      max-width: 260px;
-    }
-
-    /* Main header for mobile */
+    /* Mobile header adjustments */
     .main-header {
       padding: 0 10px;
       height: 46px;
-    }
-    .btn-mobile-menu {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 36px;
-      height: 36px;
-      background: transparent;
-      border: none;
-      color: var(--text-primary);
-      cursor: pointer;
-      border-radius: 4px;
-      margin-right: 4px;
-      flex-shrink: 0;
-    }
-    .btn-mobile-menu:active {
-      background: var(--bg-light);
     }
     .main-header .desc,
     .main-header .divider {
@@ -472,78 +470,58 @@
       font-size: 12px;
     }
 
-    /* Chat layout for mobile */
+    /* Mobile Chat adjustments */
     .chat-messages {
       padding: 12px 12px 6px;
       gap: 12px;
     }
-    .chat-msg {
-      gap: 10px;
-    }
     .chat-msg-avatar {
-      width: 34px;
-      height: 34px;
-      font-size: 13px;
+      width: 34px; height: 34px; font-size: 13px;
     }
     .chat-welcome .welcome-symbol {
-      width: 48px;
-      height: 48px;
-      font-size: 22px;
+      width: 48px; height: 48px; font-size: 22px;
     }
-    .chat-welcome h3 {
-      font-size: 19px;
-    }
-    .chat-welcome p {
-      font-size: 13px;
-    }
+    .chat-welcome h3 { font-size: 19px; }
+    .chat-welcome p { font-size: 13px; }
     .chat-input-wrapper {
       padding: 0 10px 10px;
     }
-    .chat-input-box {
-      padding: 2px 6px 2px 12px;
-    }
     .chat-input-box input {
-      font-size: 16px; /* Prevents auto-zoom in iOS Safari */
+      font-size: 16px; /* Prevents auto-zoom on iOS */
       height: 38px;
     }
 
-    /* Video area & controls for mobile */
+    /* Mobile Video & controls */
     .video-area {
       padding: 6px;
     }
     .controls-bar {
-      gap: 8px;
-      padding: 8px 6px;
-      border-radius: 6px;
+      gap: 8px; padding: 8px 6px; border-radius: 6px;
     }
     .ctrl-btn {
-      width: 44px;
-      height: 44px;
+      width: 44px; height: 44px;
     }
 
-    /* Modal adjustments on mobile */
+    /* Modals on mobile */
     .modal {
-      width: 92vw;
-      max-width: 92vw;
-      padding: 20px 16px;
+      width: 92vw; max-width: 92vw; padding: 20px 16px;
     }
     .modal input, .modal select {
-      font-size: 16px; /* Prevents auto-zoom in iOS Safari */
+      font-size: 16px;
     }
   }
 </style>
 </head>
 <body>
 
-<div class="app">
-  <!-- Mobile drawer backdrop -->
-  <div class="mobile-backdrop" id="mobile-backdrop" onclick="toggleMobileSidebar(false)"></div>
-
-  <!-- ===== Sidebar Container (Rail + Channel Sidebar) ===== -->
+<!-- By default on mobile, start in mobile-channels-mode so users see all rooms immediately -->
+<div class="app mobile-channels-mode" id="app-root">
+  
+  <!-- ===== Sidebar Container (Server rail + Channel list) ===== -->
   <div class="sidebar-container" id="sidebar-container">
-    <!-- Server list (Leftmost rail) -->
+    <!-- Server list (Left rail) -->
     <div class="server-list">
-      <div class="server-icon home" title="Free VDO 大厅" onclick="selectLobby()">FV</div>
+      <div class="server-icon home" title="Free VDO 频道列表" onclick="showMobileChannels()">FV</div>
       <div class="server-divider"></div>
       <div class="server-icon join" title="加入房间" onclick="showJoinByCodeModal()">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
@@ -552,12 +530,16 @@
 
     <!-- Sidebar (Channels) -->
     <div class="sidebar">
-      <div class="sidebar-header">Free VDO</div>
+      <div class="sidebar-header">
+        <span>Free VDO</span>
+        <!-- Small quick status -->
+        <span style="font-size: 11px; color: var(--green); font-weight: 500;" id="mobile-header-status">P2P 就绪</span>
+      </div>
       
       <!-- Text Channels -->
       <div class="channel-category">文字频道</div>
       <div class="channel-list">
-        <div class="channel-item active" id="channel-lobby-item" onclick="selectLobby()">
+        <div class="channel-item" id="channel-lobby-item" onclick="selectLobby()">
           <span class="channel-icon" style="font-weight: 700; font-size: 16px;">#</span>
           <span class="name">大厅</span>
         </div>
@@ -590,16 +572,18 @@
   <!-- ===== Main Content ===== -->
   <div class="main-content">
     <div class="main-header">
-      <!-- Mobile hamburger menu button -->
-      <button class="btn-mobile-menu" id="btn-mobile-menu" onclick="toggleMobileSidebar(true)" title="频道菜单">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      <!-- Mobile back button to return to Channel List -->
+      <button class="btn-mobile-back" onclick="showMobileChannels()" title="返回频道列表">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        <span>频道</span>
       </button>
+
       <span class="header-prefix" id="header-prefix">#</span>
       <span class="title" id="header-title">大厅</span>
       <span class="divider"></span>
       <span class="desc" id="header-desc">公共文字频道 · 在这里可以与所有人自由交流</span>
       <div class="header-btns">
-        <button class="btn-header btn-back-voice" id="btn-back-voice" style="display:none" onclick="returnToVoiceChannel()">返回连麦画面</button>
+        <button class="btn-header btn-back-voice" id="btn-back-voice" style="display:none" onclick="returnToVoiceChannel()">返回画面</button>
         <button class="btn-header btn-invite-header" id="btn-invite" style="display:none" onclick="showInviteModal()">邀请好友</button>
       </div>
     </div>
@@ -688,7 +672,7 @@
   </div>
 </div>
 
-<!-- ===== Create Channel Modal (Sidebar +) ===== -->
+<!-- ===== Create Channel Modal ===== -->
 <div class="modal-overlay hidden" id="create-channel-modal">
   <div class="modal">
     <h3>创建语音频道</h3>
@@ -713,7 +697,7 @@
   </div>
 </div>
 
-<!-- ===== Quick Join Modal (Leftmost Rail +) ===== -->
+<!-- ===== Quick Join Modal ===== -->
 <div class="modal-overlay hidden" id="join-code-modal">
   <div class="modal">
     <h3>加入已有房间</h3>
@@ -779,7 +763,7 @@ const ICONS = {
   screen: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>`,
   speaker: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>`,
   speakerMute: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>`,
-  hangup: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 11.34 11.34 0 0 0 3.55.57 2 2 0 0 1 2 2v3.08a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3.06a2 2 0 0 1 1.72 11.34 11.34 0 0 0 .57 3.55 2 2 0 0 1-.45 2.11L8.09 9.91"></path><line x1="23" y1="1" x2="1" y2="23"></line></svg>`,
+  hangup: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 11.34 11.34 0 0 0 3.55.57 2 2 0 0 1 2 2v3.08a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3.06a2 2 0 0 1 2 1.72 11.34 11.34 0 0 0 .57 3.55 2 2 0 0 1-.45 2.11L8.09 9.91"></path><line x1="23" y1="1" x2="1" y2="23"></line></svg>`,
   settings: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>`,
   channelVoice: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>`
 };
@@ -806,19 +790,17 @@ const state = {
 
 const chatBroadcast = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('freevdo-chat-sync') : null;
 
-// ============ Mobile Drawer Toggle ============
-function toggleMobileSidebar(show) {
-  const container = document.getElementById('sidebar-container');
-  const backdrop = document.getElementById('mobile-backdrop');
-  if (!container || !backdrop) return;
-  const isOpen = show !== undefined ? show : !container.classList.contains('open');
-  if (isOpen) {
-    container.classList.add('open');
-    backdrop.classList.add('show');
-  } else {
-    container.classList.remove('open');
-    backdrop.classList.remove('show');
-  }
+// ============ Mobile Navigation Engine ============
+function showMobileChannels() {
+  const root = document.getElementById('app-root');
+  root.classList.remove('mobile-room-mode');
+  root.classList.add('mobile-channels-mode');
+}
+
+function showMobileRoom() {
+  const root = document.getElementById('app-root');
+  root.classList.remove('mobile-channels-mode');
+  root.classList.add('mobile-room-mode');
 }
 
 // ============ Init ============
@@ -876,8 +858,8 @@ function toggleMobileSidebar(show) {
 
 // ============ Navigation & Views ============
 function selectLobby() {
-  toggleMobileSidebar(false);
   state.activeView = 'lobby';
+  showMobileRoom(); // On mobile, enter chat view
 
   document.getElementById('header-prefix').textContent = '#';
   document.getElementById('header-title').textContent = '大厅';
@@ -903,9 +885,9 @@ function selectLobby() {
 }
 
 function returnToVoiceChannel() {
-  toggleMobileSidebar(false);
   if (!state.currentChannel) return;
   state.activeView = 'voice';
+  showMobileRoom();
 
   document.getElementById('header-prefix').innerHTML = ICONS.channelVoice;
   document.getElementById('header-title').textContent = state.currentChannelName;
@@ -1010,7 +992,6 @@ function escapeHtml(str) {
 
 // ============ Quick Join Modal ============
 function showJoinByCodeModal() {
-  toggleMobileSidebar(false);
   document.getElementById('input-join-code').value = '';
   document.getElementById('input-join-password').value = '';
   document.getElementById('join-code-modal').classList.remove('hidden');
@@ -1197,7 +1178,6 @@ function quickInvite(channelId) {
 }
 
 function joinVoiceChannel(channelId, channelName) {
-  toggleMobileSidebar(false);
   if (!state.username) {
     showSettingsModal();
     alert('请先设置你的昵称');
@@ -1212,6 +1192,7 @@ function joinVoiceChannel(channelId, channelName) {
   state.currentChannel = channelId;
   state.currentChannelName = channelName;
   state.activeView = 'voice';
+  showMobileRoom(); // On mobile, transition to room view
 
   document.getElementById('header-prefix').innerHTML = ICONS.channelVoice;
   document.getElementById('header-title').textContent = channelName;
@@ -1373,7 +1354,6 @@ function updateMemberList() {
 
 // ============ Modals & Settings ============
 function showSettingsModal() {
-  toggleMobileSidebar(false);
   document.getElementById('input-username').value = state.username;
   document.getElementById('input-quality').value = state.quality;
   document.getElementById('input-bitrate').value = state.bitrate;
@@ -1382,7 +1362,6 @@ function showSettingsModal() {
 }
 
 function showCreateChannelModal() {
-  toggleMobileSidebar(false);
   document.getElementById('input-channel-name').value = '';
   document.getElementById('input-channel-password').value = '';
   document.getElementById('create-invite-result').classList.remove('show');
@@ -1450,7 +1429,6 @@ document.querySelectorAll('.modal-overlay').forEach(o => {
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     document.querySelectorAll('.modal-overlay').forEach(m => m.classList.add('hidden'));
-    toggleMobileSidebar(false);
   }
   if (e.key === 'Enter' && document.activeElement === document.getElementById('chat-input')) {
     sendLobbyMessage();
