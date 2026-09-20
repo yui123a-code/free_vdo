@@ -23,14 +23,14 @@
     --red: #f23f43;
     --yellow: #fee75c;
     --channel-hover: #35373c;
-    --font: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
   }
   html, body { height: 100%; font-family: var(--font); background: var(--bg-dark); color: var(--text-primary); overflow: hidden; }
 
   /* ============ Layout ============ */
   .app { display: flex; height: 100vh; }
 
-  /* --- Server List (left bar) --- */
+  /* --- Server List (left rail) --- */
   .server-list {
     width: 72px; min-width: 72px;
     background: var(--bg-darkest);
@@ -41,13 +41,13 @@
     width: 48px; height: 48px; border-radius: 50%;
     background: var(--bg-dark); color: var(--text-primary);
     display: flex; align-items: center; justify-content: center;
-    font-size: 20px; cursor: pointer; transition: border-radius 0.2s, background 0.2s;
+    font-size: 15px; font-weight: 700; cursor: pointer; transition: border-radius 0.2s, background 0.2s;
     position: relative; user-select: none;
   }
-  .server-icon:hover, .server-icon.active { border-radius: 16px; background: var(--accent); }
-  .server-icon.home { background: var(--accent); border-radius: 16px; }
+  .server-icon:hover, .server-icon.active { border-radius: 16px; background: var(--accent); color: #fff; }
+  .server-icon.home { background: var(--accent); border-radius: 16px; color: #fff; }
   .server-divider { width: 32px; height: 2px; background: var(--bg-dark); border-radius: 1px; }
-  .server-icon.join { background: var(--bg-dark); color: var(--green); font-size: 22px; }
+  .server-icon.join { background: var(--bg-dark); color: var(--green); }
   .server-icon.join:hover { background: var(--green); color: #fff; }
 
   /* --- Sidebar (channels) --- */
@@ -64,40 +64,46 @@
     cursor: default;
   }
   .channel-category {
-    padding: 16px 8px 4px 16px;
+    padding: 16px 12px 6px 16px;
     font-size: 12px; font-weight: 700;
     text-transform: uppercase; color: var(--text-muted);
     letter-spacing: 0.02em;
     display: flex; justify-content: space-between; align-items: center;
   }
-  .channel-category .add-ch-btn {
-    cursor: pointer; font-size: 16px; color: var(--text-muted); padding: 0 4px;
+  .cat-add-btn {
+    background: transparent; border: none; color: var(--text-muted); font-size: 12px;
+    font-weight: 600; cursor: pointer; padding: 2px 6px; border-radius: 3px; font-family: var(--font);
+    transition: background 0.15s, color 0.15s;
   }
-  .channel-category .add-ch-btn:hover { color: var(--text-primary); }
+  .cat-add-btn:hover { background: var(--bg-light); color: var(--text-primary); }
+
   .channel-list { overflow-y: auto; padding: 0 8px; }
   #voice-channels { flex: 1; }
   .channel-item {
     display: flex; align-items: center; gap: 8px;
-    padding: 6px 8px; margin: 1px 0; border-radius: 4px;
-    cursor: pointer; color: var(--text-secondary); font-size: 15px;
+    padding: 7px 8px; margin: 1px 0; border-radius: 4px;
+    cursor: pointer; color: var(--text-secondary); font-size: 14.5px;
     transition: background 0.1s, color 0.1s;
   }
   .channel-item:hover { background: var(--channel-hover); color: var(--text-primary); }
   .channel-item.active { background: var(--bg-active); color: #fff; }
-  .channel-item .icon { font-size: 18px; opacity: 0.7; width: 24px; text-align: center; }
+  .channel-item .channel-icon {
+    display: flex; align-items: center; justify-content: center; width: 18px; height: 18px; opacity: 0.7; flex-shrink: 0;
+  }
   .channel-item .name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .channel-item .ch-actions {
-    display: none; gap: 2px;
+    display: none; gap: 4px;
   }
   .channel-item:hover .ch-actions { display: flex; }
-  .channel-item .ch-btn {
-    width: 24px; height: 24px; border: none; border-radius: 4px;
-    background: transparent; color: var(--text-muted); cursor: pointer;
-    font-size: 13px; display: flex; align-items: center; justify-content: center;
+  .ch-text-btn {
+    padding: 2px 6px; font-size: 11px; border: none; border-radius: 3px;
+    background: var(--bg-light); color: var(--text-secondary); cursor: pointer;
+    line-height: 1.4; font-family: var(--font); font-weight: 500;
+    transition: background 0.15s, color 0.15s;
   }
-  .channel-item .ch-btn:hover { background: var(--bg-light); color: var(--text-primary); }
-  .channel-item .ch-btn.del-btn:hover { background: rgba(242, 63, 67, 0.2); color: var(--red); }
-  .channel-item .lock { font-size: 12px; opacity: 0.5; }
+  .ch-text-btn:hover { background: var(--bg-active); color: #fff; }
+  .ch-text-btn.del:hover { background: rgba(242, 63, 67, 0.2); color: var(--red); }
+  .channel-item .lock-badge { font-size: 11px; color: var(--text-muted); margin-left: 2px; }
 
   .empty-channel-tip {
     padding: 24px 12px; font-size: 13px; color: var(--text-muted); text-align: center; line-height: 1.6;
@@ -112,7 +118,7 @@
   .user-avatar {
     width: 32px; height: 32px; border-radius: 50%;
     background: var(--accent); display: flex; align-items: center; justify-content: center;
-    font-size: 14px; font-weight: 600;
+    font-size: 14px; font-weight: 600; color: #fff;
   }
   .user-info { flex: 1; min-width: 0; }
   .user-name { font-size: 13px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -121,7 +127,8 @@
   .user-panel-btns button {
     width: 32px; height: 32px; border: none; border-radius: 4px;
     background: transparent; color: var(--text-muted); cursor: pointer;
-    font-size: 16px; display: flex; align-items: center; justify-content: center;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, color 0.15s;
   }
   .user-panel-btns button:hover { background: var(--bg-light); color: var(--text-primary); }
 
@@ -133,23 +140,19 @@
     border-bottom: 2px solid var(--bg-darkest);
     font-weight: 600;
   }
-  .main-header .icon { font-size: 20px; opacity: 0.7; }
+  .main-header .header-prefix { font-size: 18px; color: var(--text-muted); margin-right: 2px; }
   .main-header .title { font-size: 15px; }
   .main-header .divider { width: 1px; height: 24px; background: var(--bg-light); margin: 0 8px; }
   .main-header .desc { font-size: 13px; color: var(--text-muted); font-weight: 400; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .main-header .header-btns { display: flex; gap: 8px; align-items: center; margin-left: auto; }
-  .main-header .invite-btn {
-    padding: 6px 14px; border: none; border-radius: 4px;
-    background: var(--green); color: #fff; font-size: 13px; font-weight: 600;
-    cursor: pointer; font-family: var(--font);
+  .btn-header {
+    padding: 6px 14px; border: none; border-radius: 4px; font-size: 13px; font-weight: 600;
+    cursor: pointer; font-family: var(--font); transition: background 0.15s;
   }
-  .main-header .invite-btn:hover { background: #1a8f4e; }
-  .main-header .back-voice-btn {
-    padding: 6px 14px; border: none; border-radius: 4px;
-    background: var(--accent); color: #fff; font-size: 13px; font-weight: 600;
-    cursor: pointer; font-family: var(--font);
-  }
-  .main-header .back-voice-btn:hover { background: var(--accent-hover); }
+  .btn-invite-header { background: var(--green); color: #fff; }
+  .btn-invite-header:hover { background: #1a8f4e; }
+  .btn-back-voice { background: var(--accent); color: #fff; }
+  .btn-back-voice:hover { background: var(--accent-hover); }
 
   /* --- Content Views --- */
   .view-container { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
@@ -164,9 +167,10 @@
   .chat-welcome {
     margin-bottom: 16px; padding-bottom: 20px; border-bottom: 1px solid var(--bg-light);
   }
-  .chat-welcome .welcome-icon {
-    width: 68px; height: 68px; border-radius: 50%; background: var(--bg-light);
-    display: flex; align-items: center; justify-content: center; font-size: 36px; margin-bottom: 12px;
+  .chat-welcome .welcome-symbol {
+    width: 60px; height: 60px; border-radius: 50%; background: var(--bg-light);
+    display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 700;
+    color: var(--text-primary); margin-bottom: 12px;
   }
   .chat-welcome h3 { font-size: 24px; color: var(--text-primary); margin-bottom: 6px; }
   .chat-welcome p { font-size: 14px; color: var(--text-secondary); line-height: 1.5; }
@@ -201,7 +205,8 @@
   .chat-input-box input::placeholder { color: var(--text-muted); }
   .chat-input-box button {
     background: var(--accent); color: #fff; border: none; border-radius: 4px;
-    padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer;
+    padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--font);
+    transition: background 0.15s;
   }
   .chat-input-box button:hover { background: var(--accent-hover); }
 
@@ -211,15 +216,17 @@
     gap: 12px; border-bottom: 1px solid var(--bg-light); font-size: 13px;
   }
   .ongoing-voice-bar .voice-live-dot {
-    width: 10px; height: 10px; border-radius: 50%; background: var(--green); animation: pulse 1s infinite;
+    width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 1s infinite;
   }
   .ongoing-voice-bar .voice-title { color: var(--text-primary); font-weight: 600; }
   .ongoing-voice-bar .voice-actions { margin-left: auto; display: flex; gap: 8px; }
   .ongoing-voice-bar button {
-    border: none; border-radius: 4px; padding: 4px 10px; font-size: 12px; font-weight: 600; cursor: pointer;
+    border: none; border-radius: 4px; padding: 5px 12px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: var(--font);
   }
   .btn-return-call { background: var(--green); color: #fff; }
+  .btn-return-call:hover { background: #1a8f4e; }
   .btn-hangup-call { background: var(--red); color: #fff; }
+  .btn-hangup-call:hover { background: #d83438; }
 
   /* 2. Video Area (Voice Room) */
   .video-area {
@@ -238,18 +245,20 @@
   /* Controls bar */
   .controls-bar {
     display: flex; align-items: center; justify-content: center;
-    gap: 8px; padding: 12px; background: var(--bg-darker); border-radius: 8px;
+    gap: 12px; padding: 12px; background: var(--bg-darker); border-radius: 8px;
   }
   .ctrl-btn {
     width: 48px; height: 48px; border: none; border-radius: 50%;
     background: var(--bg-light); color: var(--text-primary);
-    font-size: 20px; cursor: pointer; transition: background 0.15s;
+    cursor: pointer; transition: background 0.15s, color 0.15s;
     display: flex; align-items: center; justify-content: center;
   }
   .ctrl-btn:hover { background: var(--bg-active); }
-  .ctrl-btn.danger { background: var(--red); }
+  .ctrl-btn.active-action { background: rgba(35, 165, 90, 0.2); color: var(--green); }
+  .ctrl-btn.danger { background: var(--red); color: #fff; }
   .ctrl-btn.danger:hover { background: #d83438; }
-  .ctrl-btn.muted { background: var(--red); }
+  .ctrl-btn.muted { background: rgba(242, 63, 67, 0.2); color: var(--red); }
+  .ctrl-btn svg { display: block; }
 
   /* Status line */
   .status-line {
@@ -280,7 +289,7 @@
   .member-avatar {
     width: 32px; height: 32px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 600; position: relative;
+    font-size: 13px; font-weight: 600; color: #fff; position: relative;
   }
   .member-avatar .status-badge {
     position: absolute; bottom: -1px; right: -1px;
@@ -300,18 +309,18 @@
     background: var(--bg-dark); border-radius: 8px;
     padding: 24px; width: 480px; max-width: 90vw;
   }
-  .modal h3 { margin-bottom: 16px; font-size: 20px; }
-  .modal label { display: block; margin-bottom: 4px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); }
+  .modal h3 { margin-bottom: 16px; font-size: 20px; font-weight: 600; }
+  .modal label { display: block; margin-bottom: 6px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); }
   .modal input, .modal select {
     width: 100%; padding: 10px 12px; margin-bottom: 16px;
-    background: var(--bg-darkest); border: none; border-radius: 4px;
+    background: var(--bg-darkest); border: 1px solid transparent; border-radius: 4px;
     color: var(--text-primary); font-size: 14px; font-family: var(--font);
-    outline: none;
+    outline: none; transition: border-color 0.15s;
   }
-  .modal input:focus { box-shadow: 0 0 0 2px var(--accent); }
+  .modal input:focus { border-color: var(--accent); }
   .modal .btn-row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; }
   .modal button {
-    padding: 10px 24px; border: none; border-radius: 4px;
+    padding: 10px 22px; border: none; border-radius: 4px;
     font-size: 14px; font-weight: 600; cursor: pointer; font-family: var(--font);
   }
   .modal .btn-cancel { background: transparent; color: var(--text-primary); }
@@ -345,12 +354,13 @@
   /* Toast notification */
   .toast {
     position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-    background: var(--green); color: #fff; padding: 10px 24px;
+    background: var(--bg-light); border: 1px solid var(--bg-active);
+    color: var(--text-primary); padding: 10px 24px;
     border-radius: 8px; font-size: 14px; font-weight: 600;
-    z-index: 2000; opacity: 0; transition: opacity 0.3s;
-    pointer-events: none;
+    z-index: 2000; opacity: 0; transition: opacity 0.25s, transform 0.25s;
+    pointer-events: none; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   }
-  .toast.show { opacity: 1; }
+  .toast.show { opacity: 1; transform: translate(-50%, -4px); }
 
   /* Scrollbar */
   ::-webkit-scrollbar { width: 6px; }
@@ -361,12 +371,14 @@
 <body>
 
 <div class="app">
-  <!-- ===== Server list (Leftmost bar) ===== -->
+  <!-- ===== Server list (Leftmost rail) ===== -->
   <div class="server-list">
-    <div class="server-icon home" title="Free VDO 大厅" onclick="selectLobby()">⚡</div>
+    <div class="server-icon home" title="Free VDO 大厅" onclick="selectLobby()">FV</div>
     <div class="server-divider"></div>
-    <!-- Clear distinct role: Join existing room by link/ID -->
-    <div class="server-icon join" title="输入邀请码/链接加入房间" onclick="showJoinByCodeModal()">+</div>
+    <!-- Join existing room by link/ID -->
+    <div class="server-icon join" title="加入房间" onclick="showJoinByCodeModal()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+    </div>
   </div>
 
   <!-- ===== Sidebar (Channels) ===== -->
@@ -377,7 +389,7 @@
     <div class="channel-category">文字频道</div>
     <div class="channel-list">
       <div class="channel-item active" id="channel-lobby-item" onclick="selectLobby()">
-        <span class="icon">#</span>
+        <span class="channel-icon" style="font-weight: 700; font-size: 16px;">#</span>
         <span class="name">大厅</span>
       </div>
     </div>
@@ -385,8 +397,7 @@
     <!-- Voice Channels -->
     <div class="channel-category">
       <span>语音频道</span>
-      <!-- Clear distinct role: Create new channel inside this workspace -->
-      <span class="add-ch-btn" onclick="showCreateChannelModal()" title="新建语音房间">+</span>
+      <button class="cat-add-btn" onclick="showCreateChannelModal()" title="新建语音房间">新建</button>
     </div>
     <div class="channel-list" id="voice-channels">
       <!-- Rendered dynamically -->
@@ -400,8 +411,8 @@
         <div class="user-status" id="my-status">在线</div>
       </div>
       <div class="user-panel-btns">
-        <button onclick="toggleMic()" id="btn-mic-small" title="麦克风">🎤</button>
-        <button onclick="showSettingsModal()" title="设置">⚙️</button>
+        <button onclick="toggleMic()" id="btn-mic-small" title="麦克风开关"></button>
+        <button onclick="showSettingsModal()" id="btn-settings-small" title="设置"></button>
       </div>
     </div>
   </div>
@@ -409,13 +420,13 @@
   <!-- ===== Main Content ===== -->
   <div class="main-content">
     <div class="main-header">
-      <span class="icon" id="header-icon">#</span>
+      <span class="header-prefix" id="header-prefix">#</span>
       <span class="title" id="header-title">大厅</span>
       <span class="divider"></span>
       <span class="desc" id="header-desc">公共文字频道 · 在这里可以与所有人自由交流</span>
       <div class="header-btns">
-        <button class="back-voice-btn" id="btn-back-voice" style="display:none" onclick="returnToVoiceChannel()">🔊 返回连麦画面</button>
-        <button class="invite-btn" id="btn-invite" style="display:none" onclick="showInviteModal()">📨 邀请好友</button>
+        <button class="btn-header btn-back-voice" id="btn-back-voice" style="display:none" onclick="returnToVoiceChannel()">返回连麦画面</button>
+        <button class="btn-header btn-invite-header" id="btn-invite" style="display:none" onclick="showInviteModal()">邀请好友</button>
       </div>
     </div>
 
@@ -434,8 +445,8 @@
       <div class="chat-area" id="chat-view">
         <div class="chat-messages" id="chat-messages">
           <div class="chat-welcome">
-            <div class="welcome-icon">#</div>
-            <h3>欢迎来到 #大厅！</h3>
+            <div class="welcome-symbol">#</div>
+            <h3>欢迎来到 #大厅</h3>
             <p>这是 Free VDO 的公共文字频道。可以在这里与在线好友实时聊天，或点击左侧语音频道开启高清 P2P 音视频连麦。</p>
           </div>
           <!-- Dynamic chat messages -->
@@ -457,11 +468,11 @@
           </div>
           <div class="video-grid" id="video-grid"></div>
           <div class="controls-bar">
-            <button class="ctrl-btn" id="btn-mic" onclick="toggleMic()" title="麦克风">🎤</button>
-            <button class="ctrl-btn" id="btn-cam" onclick="toggleCam()" title="摄像头">📹</button>
-            <button class="ctrl-btn" id="btn-screen" onclick="toggleScreen()" title="屏幕共享">🖥️</button>
-            <button class="ctrl-btn" id="btn-speaker" onclick="toggleSpeaker()" title="扬声器">🔊</button>
-            <button class="ctrl-btn danger" onclick="leaveChannel()" title="断开连接">📞</button>
+            <button class="ctrl-btn" id="btn-mic" onclick="toggleMic()" title="麦克风开关"></button>
+            <button class="ctrl-btn" id="btn-cam" onclick="toggleCam()" title="摄像头开关"></button>
+            <button class="ctrl-btn" id="btn-screen" onclick="toggleScreen()" title="共享屏幕"></button>
+            <button class="ctrl-btn" id="btn-speaker" onclick="toggleSpeaker()" title="扬声器开关"></button>
+            <button class="ctrl-btn danger" id="btn-hangup" onclick="leaveChannel()" title="挂断退出"></button>
           </div>
         </div>
       </div>
@@ -481,7 +492,7 @@
 <!-- ===== Settings Modal ===== -->
 <div class="modal-overlay hidden" id="settings-modal">
   <div class="modal">
-    <h3>⚙️ 用户设置</h3>
+    <h3>用户设置</h3>
     <label>昵称</label>
     <input type="text" id="input-username" placeholder="输入你的昵称..." maxlength="20">
     <label>视频质量</label>
@@ -506,7 +517,7 @@
 <!-- ===== Create Channel Modal (Sidebar +) ===== -->
 <div class="modal-overlay hidden" id="create-channel-modal">
   <div class="modal">
-    <h3>🔊 创建新的语音频道</h3>
+    <h3>创建语音频道</h3>
     <label>频道名称</label>
     <input type="text" id="input-channel-name" placeholder="例如：周末开黑、技术讨论" maxlength="30">
     <label>房间密码（可选）</label>
@@ -514,10 +525,10 @@
     <div class="hint">设置密码后，其他朋友加入时需要输入密码验证</div>
 
     <div class="invite-result" id="create-invite-result">
-      <p>✅ 频道已创建！把专属链接发给朋友，对方点击即可直连：</p>
+      <p>频道已创建，专属链接如下：</p>
       <div class="invite-box">
         <input type="text" id="create-invite-link" readonly onclick="this.select()">
-        <button class="btn-green" onclick="copyInviteLink('create-invite-link')">复制</button>
+        <button class="btn-green" onclick="copyInviteLink('create-invite-link')">复制链接</button>
       </div>
     </div>
 
@@ -531,9 +542,9 @@
 <!-- ===== Quick Join Modal (Leftmost Rail +) ===== -->
 <div class="modal-overlay hidden" id="join-code-modal">
   <div class="modal">
-    <h3>🚪 加入已有房间</h3>
-    <label>输入邀请链接或房间ID</label>
-    <input type="text" id="input-join-code" placeholder="粘贴朋友发给你的完整邀请链接，或房间ID...">
+    <h3>加入已有房间</h3>
+    <label>输入邀请链接或房间名称</label>
+    <input type="text" id="input-join-code" placeholder="粘贴朋友发给你的完整邀请链接，或房间名...">
     <div class="hint">支持粘贴以 #room= 开头的专属链接，也支持纯房间名称</div>
     <label>房间密码（如有）</label>
     <input type="text" id="input-join-password" placeholder="无密码请留空">
@@ -547,7 +558,7 @@
 <!-- ===== Invite Modal ===== -->
 <div class="modal-overlay hidden" id="invite-modal">
   <div class="modal">
-    <h3>📨 邀请朋友加入</h3>
+    <h3>邀请朋友加入</h3>
     <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 14px;" id="invite-channel-info"></p>
 
     <label>本站邀请链接（推荐）</label>
@@ -573,22 +584,36 @@
 <!-- ===== Join from Invite Modal ===== -->
 <div class="modal-overlay hidden" id="join-invite-modal">
   <div class="modal">
-    <h3>🎉 收到房间加入邀请</h3>
+    <h3>加入房间邀请</h3>
     <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 14px;" id="join-invite-info"></p>
     <label>设置你的昵称</label>
     <input type="text" id="join-invite-username" placeholder="输入昵称后进入..." maxlength="20">
     <div class="btn-row">
       <button class="btn-cancel" onclick="declineInvite()">暂不加入</button>
-      <button class="btn-green" onclick="acceptInvite()">🔊 确认加入</button>
+      <button class="btn-green" onclick="acceptInvite()">确认加入</button>
     </div>
   </div>
 </div>
 
 <script>
+// ============ Standard Universal SVG Icons ============
+const ICONS = {
+  mic: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>`,
+  micOff: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"></line><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"></path><path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>`,
+  cam: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>`,
+  camOff: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.66 0H14a2 2 0 0 1 2 2v3.34l1 1L23 7v10"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`,
+  screen: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>`,
+  speaker: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>`,
+  speakerMute: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>`,
+  hangup: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 11.34 11.34 0 0 0 3.55.57 2 2 0 0 1 2 2v3.08a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3.06a2 2 0 0 1 2 1.72 11.34 11.34 0 0 0 .57 3.55 2 2 0 0 1-.45 2.11L8.09 9.91"></path><line x1="23" y1="1" x2="1" y2="23"></line></svg>`,
+  settings: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>`,
+  channelVoice: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>`
+};
+
 // ============ State ============
 const state = {
   username: '',
-  activeView: 'lobby', // 'lobby' or 'voice'
+  activeView: 'lobby',
   currentChannel: null,
   currentChannelName: '',
   isMicOn: true,
@@ -605,7 +630,6 @@ const state = {
   pendingInvite: null
 };
 
-// Realtime tab sync
 const chatBroadcast = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('freevdo-chat-sync') : null;
 
 // ============ Init ============
@@ -633,7 +657,6 @@ const chatBroadcast = typeof BroadcastChannel !== 'undefined' ? new BroadcastCha
     } catch(e) {}
   }
 
-  // Load chat messages
   const savedMessages = localStorage.getItem('freevdo-lobby-msgs');
   if (savedMessages) {
     try {
@@ -641,6 +664,11 @@ const chatBroadcast = typeof BroadcastChannel !== 'undefined' ? new BroadcastCha
       if (Array.isArray(parsed)) state.lobbyMessages = parsed;
     } catch(e) {}
   }
+
+  // Setup static buttons with SVG
+  document.getElementById('btn-settings-small').innerHTML = ICONS.settings;
+  document.getElementById('btn-hangup').innerHTML = ICONS.hangup;
+  updateControlButtons();
 
   renderChannels();
   renderLobbyMessages();
@@ -661,24 +689,20 @@ const chatBroadcast = typeof BroadcastChannel !== 'undefined' ? new BroadcastCha
 function selectLobby() {
   state.activeView = 'lobby';
 
-  // Update header
-  document.getElementById('header-icon').textContent = '#';
+  document.getElementById('header-prefix').textContent = '#';
   document.getElementById('header-title').textContent = '大厅';
   document.getElementById('header-desc').textContent = '公共文字频道 · 在这里可以与所有人自由交流';
 
-  // Toggle active class on sidebar
   document.getElementById('channel-lobby-item').classList.add('active');
   document.querySelectorAll('#voice-channels .channel-item').forEach(el => el.classList.remove('active'));
 
-  // Toggle views
   document.getElementById('chat-view').style.display = 'flex';
   document.getElementById('video-view').style.display = 'none';
   document.getElementById('btn-invite').style.display = 'none';
 
-  // If in voice call, show floating ongoing call bar
   if (state.currentChannel) {
     document.getElementById('ongoing-voice-bar').style.display = 'flex';
-    document.getElementById('ongoing-voice-name').textContent = `正在「${state.currentChannelName}」语音通话中`;
+    document.getElementById('ongoing-voice-name').textContent = `正在频道「${state.currentChannelName}」连麦通话中`;
     document.getElementById('btn-back-voice').style.display = 'inline-block';
   } else {
     document.getElementById('ongoing-voice-bar').style.display = 'none';
@@ -692,7 +716,7 @@ function returnToVoiceChannel() {
   if (!state.currentChannel) return;
   state.activeView = 'voice';
 
-  document.getElementById('header-icon').textContent = '🔊';
+  document.getElementById('header-prefix').innerHTML = ICONS.channelVoice;
   document.getElementById('header-title').textContent = state.currentChannelName;
   document.getElementById('header-desc').textContent = 'P2P 语音/视频通话 · 端到端直连加密';
   document.getElementById('btn-invite').style.display = 'inline-block';
@@ -724,7 +748,7 @@ function sendLobbyMessage() {
 
   if (!state.username) {
     showSettingsModal();
-    alert('请先设置你的昵称，才能在 #大厅 发送消息！');
+    alert('请先设置你的昵称，才能在大厅发送消息');
     return;
   }
 
@@ -740,29 +764,25 @@ function sendLobbyMessage() {
   };
 
   state.lobbyMessages.push(message);
-  // Keep last 100 messages
   if (state.lobbyMessages.length > 100) state.lobbyMessages.shift();
   localStorage.setItem('freevdo-lobby-msgs', JSON.stringify(state.lobbyMessages));
 
   input.value = '';
   renderLobbyMessages();
 
-  // 1. Sync across browser tabs
   if (chatBroadcast) {
     chatBroadcast.postMessage({ type: 'new-msg', payload: message });
   }
 
-  // 2. Broadcast via VDO.Ninja DataChannel if connected in call
   postToIframe({ action: 'sendChat', value: `[#大厅] ${state.username}: ${text}` });
 }
 
 function renderLobbyMessages() {
   const container = document.getElementById('chat-messages');
-  // Preserve welcome banner
   const welcomeHtml = `
     <div class="chat-welcome">
-      <div class="welcome-icon">#</div>
-      <h3>欢迎来到 #大厅！</h3>
+      <div class="welcome-symbol">#</div>
+      <h3>欢迎来到 #大厅</h3>
       <p>这是 Free VDO 的公共文字频道。可以在这里与在线好友实时聊天，或点击左侧语音频道开启高清 P2P 音视频连麦。</p>
     </div>
   `;
@@ -797,7 +817,7 @@ function escapeHtml(str) {
   })[m]);
 }
 
-// ============ Quick Join Modal (Left rail +) ============
+// ============ Quick Join Modal ============
 function showJoinByCodeModal() {
   document.getElementById('input-join-code').value = '';
   document.getElementById('input-join-password').value = '';
@@ -807,13 +827,12 @@ function showJoinByCodeModal() {
 function handleJoinByCode() {
   const rawInput = document.getElementById('input-join-code').value.trim();
   const pwdInput = document.getElementById('input-join-password').value.trim();
-  if (!rawInput) { alert('请输入邀请链接或房间ID'); return; }
+  if (!rawInput) { alert('请输入邀请链接或房间名称'); return; }
 
   let roomId = rawInput;
   let roomName = rawInput;
   let password = pwdInput;
 
-  // If user pasted a full URL or hash
   if (rawInput.includes('#')) {
     try {
       const hashPart = rawInput.split('#')[1];
@@ -834,7 +853,6 @@ function handleJoinByCode() {
     } catch(e) {}
   }
 
-  // Add to channels if not existing
   if (!state.channels.find(c => c.id === roomId)) {
     state.channels.push({ id: roomId, name: roomName, password: password || undefined });
     saveCustomChannels();
@@ -882,7 +900,7 @@ function parseInviteFromURL() {
     }
 
     document.getElementById('join-invite-info').textContent =
-      `你被邀请加入语音频道「${roomName}」${password ? '（带密码保护）' : ''}`;
+      `你被邀请加入语音频道「${roomName}」${password ? '（受密码保护）' : ''}`;
     document.getElementById('join-invite-username').value = state.username || '';
     document.getElementById('join-invite-modal').classList.remove('hidden');
 
@@ -930,10 +948,10 @@ function copyInviteLink(inputId) {
   const input = document.getElementById(inputId);
   input.select();
   navigator.clipboard.writeText(input.value).then(() => {
-    showToast('✅ 链接已复制到剪贴板！');
+    showToast('已复制链接到剪贴板');
   }).catch(() => {
     document.execCommand('copy');
-    showToast('✅ 链接已复制！');
+    showToast('已复制链接到剪贴板');
   });
 }
 
@@ -941,7 +959,7 @@ function copyInviteLink(inputId) {
 function renderChannels() {
   const container = document.getElementById('voice-channels');
   if (state.channels.length === 0) {
-    container.innerHTML = '<div class="empty-channel-tip">暂无语音房间<br>点击右上角「+」创建</div>';
+    container.innerHTML = '<div class="empty-channel-tip">暂无语音房间<br>点击右上角「新建」创建</div>';
     return;
   }
 
@@ -949,12 +967,12 @@ function renderChannels() {
     <div class="channel-item ${state.activeView === 'voice' && state.currentChannel === ch.id ? 'active' : ''}"
          data-id="${ch.id}"
          onclick="joinVoiceChannel('${ch.id}', '${ch.name}')">
-      <span class="icon">🔊</span>
+      <span class="channel-icon">${ICONS.channelVoice}</span>
       <span class="name">${escapeHtml(ch.name)}</span>
-      ${ch.password ? '<span class="lock" title="受密码保护">🔒</span>' : ''}
+      ${ch.password ? '<span class="lock-badge">[密码]</span>' : ''}
       <span class="ch-actions">
-        <button class="ch-btn" onclick="event.stopPropagation(); quickInvite('${ch.id}')" title="复制邀请链接">📨</button>
-        <button class="ch-btn del-btn" onclick="event.stopPropagation(); deleteChannel('${ch.id}')" title="删除房间">🗑️</button>
+        <button class="ch-text-btn" onclick="event.stopPropagation(); quickInvite('${ch.id}')">邀请</button>
+        <button class="ch-text-btn del" onclick="event.stopPropagation(); deleteChannel('${ch.id}')">删除</button>
       </span>
     </div>
   `).join('');
@@ -972,7 +990,7 @@ function deleteChannel(channelId) {
   state.channels = state.channels.filter(c => c.id !== channelId);
   saveCustomChannels();
   renderChannels();
-  showToast(`🗑️ 已删除「${ch.name}」`);
+  showToast(`已删除房间「${ch.name}」`);
 }
 
 function quickInvite(channelId) {
@@ -980,7 +998,7 @@ function quickInvite(channelId) {
   if (!ch) return;
   const link = generateInviteLink(ch);
   navigator.clipboard.writeText(link).then(() => {
-    showToast(`✅ 已复制「${ch.name}」邀请链接！`);
+    showToast(`已复制「${ch.name}」邀请链接`);
   }).catch(() => {
     prompt('复制该房间专属邀请链接：', link);
   });
@@ -989,7 +1007,7 @@ function quickInvite(channelId) {
 function joinVoiceChannel(channelId, channelName) {
   if (!state.username) {
     showSettingsModal();
-    alert('请先设置你的昵称！');
+    alert('请先设置你的昵称');
     return;
   }
   if (state.currentChannel === channelId) {
@@ -1002,7 +1020,7 @@ function joinVoiceChannel(channelId, channelName) {
   state.currentChannelName = channelName;
   state.activeView = 'voice';
 
-  document.getElementById('header-icon').textContent = '🔊';
+  document.getElementById('header-prefix').innerHTML = ICONS.channelVoice;
   document.getElementById('header-title').textContent = channelName;
   document.getElementById('header-desc').textContent = 'P2P 语音/视频通话 · 端到端直连加密';
   document.getElementById('btn-invite').style.display = 'inline-block';
@@ -1087,7 +1105,6 @@ function handleIframeMessage(e) {
   if (data.action === 'disconnected' || data.action === 'left-room') {
     if (data.streamID) removeMember(data.label || data.streamID);
   }
-  // Incoming chat message from P2P peers
   if (data.chatMessage || (data.action === 'chat' && data.msg)) {
     const rawMsg = data.chatMessage || data.msg;
     const author = data.sender || data.label || '好友';
@@ -1123,13 +1140,17 @@ function updateControlButtons() {
   const speaker = document.getElementById('btn-speaker');
   const micSmall = document.getElementById('btn-mic-small');
 
-  mic.textContent = state.isMicOn ? '🎤' : '🔇';
+  mic.innerHTML = state.isMicOn ? ICONS.mic : ICONS.micOff;
   mic.className = state.isMicOn ? 'ctrl-btn' : 'ctrl-btn muted';
-  if (micSmall) micSmall.textContent = state.isMicOn ? '🎤' : '🔇';
-  cam.textContent = state.isCamOn ? '📹' : '📷';
+  micSmall.innerHTML = state.isMicOn ? ICONS.mic : ICONS.micOff;
+
+  cam.innerHTML = state.isCamOn ? ICONS.cam : ICONS.camOff;
   cam.className = state.isCamOn ? 'ctrl-btn' : 'ctrl-btn muted';
-  screen.style.boxShadow = state.isScreenOn ? '0 0 0 2px var(--green)' : 'none';
-  speaker.textContent = state.isSpeakerOn ? '🔊' : '🔈';
+
+  screen.innerHTML = ICONS.screen;
+  screen.className = state.isScreenOn ? 'ctrl-btn active-action' : 'ctrl-btn';
+
+  speaker.innerHTML = state.isSpeakerOn ? ICONS.speaker : ICONS.speakerMute;
   speaker.className = state.isSpeakerOn ? 'ctrl-btn' : 'ctrl-btn muted';
 }
 
@@ -1224,7 +1245,7 @@ function showToast(message) {
   const toast = document.getElementById('toast');
   toast.textContent = message;
   toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 2500);
+  setTimeout(() => toast.classList.remove('show'), 2200);
 }
 
 // ============ Event Listeners ============
@@ -1235,7 +1256,6 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     document.querySelectorAll('.modal-overlay').forEach(m => m.classList.add('hidden'));
   }
-  // Send chat on Enter in chat input
   if (e.key === 'Enter' && document.activeElement === document.getElementById('chat-input')) {
     sendLobbyMessage();
   }
