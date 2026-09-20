@@ -282,18 +282,63 @@
     padding: 14px; overflow: hidden; min-height: 0;
   }
   .connected-view { flex: 1; display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+  
+  .video-wrapper {
+    flex: 1; position: relative; min-height: 0; display: flex;
+    border-radius: 8px; overflow: hidden; background: #111214;
+  }
   .video-grid {
-    flex: 1; display: flex; align-items: center; justify-content: center;
-    position: relative; border-radius: 8px; overflow: hidden; background: #1a1b1e; min-height: 0;
+    flex: 1; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
   }
   .video-grid iframe {
-    width: 100%; height: 100%; border: none; border-radius: 8px;
+    width: 100%; height: 100%; border: none;
+  }
+
+  /* Floating fullscreen button on top right of video */
+  .grid-fullscreen-btn {
+    position: absolute; top: 12px; right: 12px; z-index: 30;
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 14px; border-radius: 6px;
+    background: rgba(18, 19, 22, 0.8);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #f2f3f5; font-size: 13px; font-weight: 500;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    cursor: pointer; transition: background 0.15s, border-color 0.15s, transform 0.15s;
+    user-select: none;
+  }
+  .grid-fullscreen-btn:hover {
+    background: rgba(28, 29, 34, 0.95);
+    border-color: rgba(255, 255, 255, 0.45);
+    transform: scale(1.02);
+  }
+  .grid-fullscreen-btn svg { display: block; flex-shrink: 0; }
+
+  /* Fullscreen styles (Native & Pseudo fallback for iOS/Mobile) */
+  .video-wrapper:fullscreen,
+  .video-wrapper:-webkit-full-screen {
+    width: 100vw !important; height: 100vh !important;
+    background: #000 !important; border-radius: 0 !important;
+    padding: 0 !important; margin: 0 !important;
+  }
+  .video-wrapper.pseudo-fullscreen {
+    position: fixed !important; top: 0 !important; left: 0 !important;
+    width: 100vw !important; height: 100vh !important;
+    z-index: 99999 !important; border-radius: 0 !important;
+    background: #000 !important;
+  }
+  .video-wrapper.pseudo-fullscreen .video-grid,
+  .video-wrapper:fullscreen .video-grid,
+  .video-wrapper:-webkit-full-screen .video-grid {
+    border-radius: 0 !important;
   }
 
   /* Controls bar */
   .controls-bar {
     display: flex; align-items: center; justify-content: center;
     gap: 12px; padding: 12px; background: var(--bg-darker); border-radius: 8px; flex-shrink: 0;
+    flex-wrap: wrap;
   }
   .ctrl-btn {
     width: 48px; height: 48px; border: none; border-radius: 50%;
@@ -624,12 +669,19 @@
             <div class="status-dot" id="status-dot"></div>
             <span id="status-text">正在通过信令建立 P2P 直连...</span>
           </div>
-          <div class="video-grid" id="video-grid"></div>
+          <div class="video-wrapper" id="video-wrapper">
+            <div class="video-grid" id="video-grid"></div>
+            <button class="grid-fullscreen-btn" id="grid-fullscreen-btn" onclick="toggleFullscreen()" title="全屏查看 (Esc 退出)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+              <span>全屏</span>
+            </button>
+          </div>
           <div class="controls-bar">
             <button class="ctrl-btn" id="btn-mic" onclick="toggleMic()" title="麦克风开关"></button>
             <button class="ctrl-btn" id="btn-cam" onclick="toggleCam()" title="摄像头开关"></button>
             <button class="ctrl-btn" id="btn-screen" onclick="toggleScreen()" title="共享屏幕"></button>
             <button class="ctrl-btn" id="btn-speaker" onclick="toggleSpeaker()" title="扬声器开关"></button>
+            <button class="ctrl-btn" id="btn-fullscreen" onclick="toggleFullscreen()" title="全屏查看"></button>
             <button class="ctrl-btn danger" id="btn-hangup" onclick="leaveChannel()" title="挂断退出"></button>
           </div>
         </div>
@@ -765,7 +817,9 @@ const ICONS = {
   speakerMute: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>`,
   hangup: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 11.34 11.34 0 0 0 3.55.57 2 2 0 0 1 2 2v3.08a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3.06a2 2 0 0 1 2 1.72 11.34 11.34 0 0 0 .57 3.55 2 2 0 0 1-.45 2.11L8.09 9.91"></path><line x1="23" y1="1" x2="1" y2="23"></line></svg>`,
   settings: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>`,
-  channelVoice: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>`
+  channelVoice: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>`,
+  fullscreen: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>`,
+  fullscreenExit: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"></path></svg>`
 };
 
 // ============ State ============
@@ -775,9 +829,10 @@ const state = {
   currentChannel: null,
   currentChannelName: '',
   isMicOn: true,
-  isCamOn: true,
+  isCamOn: false,
   isScreenOn: false,
   isSpeakerOn: true,
+  isFullscreen: false,
   iframe: null,
   server: 'https://vdo.ninja',
   quality: 1,
@@ -1192,6 +1247,11 @@ function joinVoiceChannel(channelId, channelName) {
   state.currentChannel = channelId;
   state.currentChannelName = channelName;
   state.activeView = 'voice';
+  state.isMicOn = true;
+  state.isCamOn = false;     // Default: Camera is OFF on join
+  state.isScreenOn = false;  // Default: Screenshare is OFF on join
+  state.isSpeakerOn = true;
+  state.isFullscreen = false;
   showMobileRoom(); // On mobile, transition to room view
 
   document.getElementById('header-prefix').innerHTML = ICONS.channelVoice;
@@ -1210,17 +1270,32 @@ function joinVoiceChannel(channelId, channelName) {
 
   renderChannels();
   createIframe(channelId);
+  updateControlButtons();
   updateMemberList();
 }
 
 function leaveChannel() {
   if (!state.currentChannel) return;
+
+  // Exit fullscreen if leaving while fullscreened
+  if (state.isFullscreen) {
+    const wrapper = document.getElementById('video-wrapper');
+    if (wrapper) wrapper.classList.remove('pseudo-fullscreen');
+    if (document.fullscreenElement && document.exitFullscreen) {
+      document.exitFullscreen().catch(() => {});
+    }
+    state.isFullscreen = false;
+  }
+
   destroyIframe();
   state.currentChannel = null;
   state.currentChannelName = '';
 
   document.getElementById('my-status').textContent = '在线';
-  state.isMicOn = true; state.isCamOn = true; state.isScreenOn = false; state.isSpeakerOn = true;
+  state.isMicOn = true;
+  state.isCamOn = false;
+  state.isScreenOn = false;
+  state.isSpeakerOn = true;
   updateControlButtons();
   selectLobby();
   renderChannels();
@@ -1236,7 +1311,8 @@ function createIframe(channelId) {
   const params = new URLSearchParams();
   params.set('room', 'freevdo_' + channelId);
   params.set('label', state.username);
-  params.set('webcam', ''); // Default video device is Camera, NOT Screen
+  // Default audio only on join: prevents camera and screen prompts
+  params.set('videodevice', '0');
   params.set('push', '');
   params.set('cleanoutput', '');
   params.set('transparent', '');
@@ -1258,7 +1334,7 @@ function createIframe(channelId) {
 
   setTimeout(() => {
     if (state.currentChannel === channelId) {
-      document.getElementById('status-text').textContent = `已接入房间「${state.currentChannelName}」· P2P 通信已就绪`;
+      document.getElementById('status-text').textContent = `已接入房间「${state.currentChannelName}」· 语音连麦已就绪`;
       document.getElementById('status-dot').className = 'status-dot';
     }
   }, 3000);
@@ -1315,15 +1391,19 @@ function toggleCam() {
   state.isCamOn = !state.isCamOn;
   postToIframe({ action: 'camera', value: state.isCamOn });
   postToIframe({ camera: state.isCamOn });
+  if (state.isCamOn) {
+    postToIframe({ function: 'publishWebcam' });
+  }
   updateControlButtons();
 }
 
 function toggleScreen() {
   state.isScreenOn = !state.isScreenOn;
-  // Send multiple standard commands supported by VDO.Ninja versions
   postToIframe({ action: 'screenshare', value: state.isScreenOn });
-  postToIframe({ function: 'publishScreen' });
   postToIframe({ screenshare: state.isScreenOn });
+  if (state.isScreenOn) {
+    postToIframe({ function: 'publishScreen' });
+  }
   updateControlButtons();
 }
 
@@ -1334,25 +1414,122 @@ function toggleSpeaker() {
   updateControlButtons();
 }
 
+// ============ Fullscreen Controller ============
+function toggleFullscreen() {
+  const wrapper = document.getElementById('video-wrapper');
+  if (!wrapper) return;
+
+  const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || wrapper.classList.contains('pseudo-fullscreen'));
+
+  if (!isFs) {
+    // Enter Fullscreen
+    if (wrapper.requestFullscreen) {
+      wrapper.requestFullscreen().then(() => {
+        state.isFullscreen = true;
+        updateControlButtons();
+      }).catch(() => {
+        wrapper.classList.add('pseudo-fullscreen');
+        state.isFullscreen = true;
+        updateControlButtons();
+      });
+    } else if (wrapper.webkitRequestFullscreen) {
+      wrapper.webkitRequestFullscreen();
+      state.isFullscreen = true;
+      updateControlButtons();
+    } else {
+      wrapper.classList.add('pseudo-fullscreen');
+      state.isFullscreen = true;
+      updateControlButtons();
+    }
+  } else {
+    // Exit Fullscreen
+    if (wrapper.classList.contains('pseudo-fullscreen')) {
+      wrapper.classList.remove('pseudo-fullscreen');
+      state.isFullscreen = false;
+      updateControlButtons();
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().then(() => {
+          state.isFullscreen = false;
+          updateControlButtons();
+        }).catch(() => {});
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+        state.isFullscreen = false;
+        updateControlButtons();
+      }
+    }
+  }
+}
+
+document.addEventListener('fullscreenchange', () => {
+  state.isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement);
+  updateControlButtons();
+});
+document.addEventListener('webkitfullscreenchange', () => {
+  state.isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement);
+  updateControlButtons();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const wrapper = document.getElementById('video-wrapper');
+    if (wrapper && wrapper.classList.contains('pseudo-fullscreen')) {
+      wrapper.classList.remove('pseudo-fullscreen');
+      state.isFullscreen = false;
+      updateControlButtons();
+    }
+  }
+});
+
 function updateControlButtons() {
   const mic = document.getElementById('btn-mic');
   const cam = document.getElementById('btn-cam');
   const screen = document.getElementById('btn-screen');
   const speaker = document.getElementById('btn-speaker');
   const micSmall = document.getElementById('btn-mic-small');
+  const fullscreen = document.getElementById('btn-fullscreen');
+  const overlayBtn = document.getElementById('grid-fullscreen-btn');
 
-  mic.innerHTML = state.isMicOn ? ICONS.mic : ICONS.micOff;
-  mic.className = state.isMicOn ? 'ctrl-btn' : 'ctrl-btn muted';
-  micSmall.innerHTML = state.isMicOn ? ICONS.mic : ICONS.micOff;
+  if (mic) {
+    mic.innerHTML = state.isMicOn ? ICONS.mic : ICONS.micOff;
+    mic.className = state.isMicOn ? 'ctrl-btn' : 'ctrl-btn muted';
+    mic.title = state.isMicOn ? '静音麦克风' : '开启麦克风';
+  }
+  if (micSmall) {
+    micSmall.innerHTML = state.isMicOn ? ICONS.mic : ICONS.micOff;
+    micSmall.title = state.isMicOn ? '静音麦克风' : '开启麦克风';
+  }
 
-  cam.innerHTML = state.isCamOn ? ICONS.cam : ICONS.camOff;
-  cam.className = state.isCamOn ? 'ctrl-btn' : 'ctrl-btn muted';
+  if (cam) {
+    cam.innerHTML = state.isCamOn ? ICONS.cam : ICONS.camOff;
+    cam.className = state.isCamOn ? 'ctrl-btn' : 'ctrl-btn muted';
+    cam.title = state.isCamOn ? '关闭摄像头' : '开启摄像头';
+  }
 
-  screen.innerHTML = ICONS.screen;
-  screen.className = state.isScreenOn ? 'ctrl-btn active-action' : 'ctrl-btn';
+  if (screen) {
+    screen.innerHTML = ICONS.screen;
+    screen.className = state.isScreenOn ? 'ctrl-btn active-action' : 'ctrl-btn';
+    screen.title = state.isScreenOn ? '停止共享屏幕' : '共享屏幕';
+  }
 
-  speaker.innerHTML = state.isSpeakerOn ? ICONS.speaker : ICONS.speakerMute;
-  speaker.className = state.isSpeakerOn ? 'ctrl-btn' : 'ctrl-btn muted';
+  if (speaker) {
+    speaker.innerHTML = state.isSpeakerOn ? ICONS.speaker : ICONS.speakerMute;
+    speaker.className = state.isSpeakerOn ? 'ctrl-btn' : 'ctrl-btn muted';
+    speaker.title = state.isSpeakerOn ? '关闭扬声器' : '开启扬声器';
+  }
+
+  if (fullscreen) {
+    fullscreen.innerHTML = state.isFullscreen ? ICONS.fullscreenExit : ICONS.fullscreen;
+    fullscreen.className = state.isFullscreen ? 'ctrl-btn active-action' : 'ctrl-btn';
+    fullscreen.title = state.isFullscreen ? '退出全屏' : '全屏模式';
+  }
+
+  if (overlayBtn) {
+    overlayBtn.innerHTML = state.isFullscreen
+      ? `${ICONS.fullscreenExit}<span>退出全屏</span>`
+      : `${ICONS.fullscreen}<span>全屏</span>`;
+    overlayBtn.title = state.isFullscreen ? '退出全屏 (Esc)' : '全屏查看';
+  }
 }
 
 // ============ Members ============
