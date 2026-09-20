@@ -47,8 +47,8 @@
   .server-icon:hover, .server-icon.active { border-radius: 16px; background: var(--accent); }
   .server-icon.home { background: var(--accent); border-radius: 16px; }
   .server-divider { width: 32px; height: 2px; background: var(--bg-dark); border-radius: 1px; }
-  .server-icon.add { background: var(--bg-dark); color: var(--green); font-size: 24px; }
-  .server-icon.add:hover { background: var(--green); color: #fff; }
+  .server-icon.join { background: var(--bg-dark); color: var(--green); font-size: 22px; }
+  .server-icon.join:hover { background: var(--green); color: #fff; }
 
   /* --- Sidebar (channels) --- */
   .sidebar {
@@ -71,10 +71,11 @@
     display: flex; justify-content: space-between; align-items: center;
   }
   .channel-category .add-ch-btn {
-    cursor: pointer; font-size: 16px; color: var(--text-muted);
+    cursor: pointer; font-size: 16px; color: var(--text-muted); padding: 0 4px;
   }
   .channel-category .add-ch-btn:hover { color: var(--text-primary); }
-  .channel-list { flex: 1; overflow-y: auto; padding: 0 8px; }
+  .channel-list { overflow-y: auto; padding: 0 8px; }
+  #voice-channels { flex: 1; }
   .channel-item {
     display: flex; align-items: center; gap: 8px;
     padding: 6px 8px; margin: 1px 0; border-radius: 4px;
@@ -135,37 +136,96 @@
   .main-header .icon { font-size: 20px; opacity: 0.7; }
   .main-header .title { font-size: 15px; }
   .main-header .divider { width: 1px; height: 24px; background: var(--bg-light); margin: 0 8px; }
-  .main-header .desc { font-size: 13px; color: var(--text-muted); font-weight: 400; }
+  .main-header .desc { font-size: 13px; color: var(--text-muted); font-weight: 400; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .main-header .header-btns { display: flex; gap: 8px; align-items: center; margin-left: auto; }
   .main-header .invite-btn {
-    margin-left: auto; padding: 6px 14px; border: none; border-radius: 4px;
+    padding: 6px 14px; border: none; border-radius: 4px;
     background: var(--green); color: #fff; font-size: 13px; font-weight: 600;
     cursor: pointer; font-family: var(--font);
   }
   .main-header .invite-btn:hover { background: #1a8f4e; }
+  .main-header .back-voice-btn {
+    padding: 6px 14px; border: none; border-radius: 4px;
+    background: var(--accent); color: #fff; font-size: 13px; font-weight: 600;
+    cursor: pointer; font-family: var(--font);
+  }
+  .main-header .back-voice-btn:hover { background: var(--accent-hover); }
 
-  /* Video area */
+  /* --- Content Views --- */
+  .view-container { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+
+  /* 1. Chat Area (Lobby) */
+  .chat-area {
+    flex: 1; display: flex; flex-direction: column; overflow: hidden;
+  }
+  .chat-messages {
+    flex: 1; overflow-y: auto; padding: 20px 20px 10px; display: flex; flex-direction: column; gap: 16px;
+  }
+  .chat-welcome {
+    margin-bottom: 16px; padding-bottom: 20px; border-bottom: 1px solid var(--bg-light);
+  }
+  .chat-welcome .welcome-icon {
+    width: 68px; height: 68px; border-radius: 50%; background: var(--bg-light);
+    display: flex; align-items: center; justify-content: center; font-size: 36px; margin-bottom: 12px;
+  }
+  .chat-welcome h3 { font-size: 24px; color: var(--text-primary); margin-bottom: 6px; }
+  .chat-welcome p { font-size: 14px; color: var(--text-secondary); line-height: 1.5; }
+
+  .chat-msg {
+    display: flex; gap: 14px; align-items: flex-start;
+  }
+  .chat-msg-avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 600; font-size: 15px; color: #fff; flex-shrink: 0;
+  }
+  .chat-msg-content { flex: 1; min-width: 0; }
+  .chat-msg-header {
+    display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px;
+  }
+  .chat-msg-author { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+  .chat-msg-time { font-size: 12px; color: var(--text-muted); }
+  .chat-msg-text { font-size: 14.5px; color: #dbdee1; line-height: 1.5; word-break: break-word; white-space: pre-wrap; }
+
+  .chat-input-wrapper {
+    padding: 0 16px 20px;
+  }
+  .chat-input-box {
+    background: var(--bg-light); border-radius: 8px; padding: 4px 8px 4px 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .chat-input-box input {
+    flex: 1; height: 42px; background: transparent; border: none; outline: none;
+    color: var(--text-primary); font-size: 14px; font-family: var(--font);
+  }
+  .chat-input-box input::placeholder { color: var(--text-muted); }
+  .chat-input-box button {
+    background: var(--accent); color: #fff; border: none; border-radius: 4px;
+    padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  .chat-input-box button:hover { background: var(--accent-hover); }
+
+  /* Ongoing Voice Banner */
+  .ongoing-voice-bar {
+    background: #111214; padding: 10px 16px; display: flex; align-items: center;
+    gap: 12px; border-bottom: 1px solid var(--bg-light); font-size: 13px;
+  }
+  .ongoing-voice-bar .voice-live-dot {
+    width: 10px; height: 10px; border-radius: 50%; background: var(--green); animation: pulse 1s infinite;
+  }
+  .ongoing-voice-bar .voice-title { color: var(--text-primary); font-weight: 600; }
+  .ongoing-voice-bar .voice-actions { margin-left: auto; display: flex; gap: 8px; }
+  .ongoing-voice-bar button {
+    border: none; border-radius: 4px; padding: 4px 10px; font-size: 12px; font-weight: 600; cursor: pointer;
+  }
+  .btn-return-call { background: var(--green); color: #fff; }
+  .btn-hangup-call { background: var(--red); color: #fff; }
+
+  /* 2. Video Area (Voice Room) */
   .video-area {
     flex: 1; display: flex; flex-direction: column;
     padding: 16px; overflow: hidden;
   }
-
-  /* --- Welcome screen --- */
-  .welcome-screen {
-    flex: 1; display: flex; flex-direction: column;
-    align-items: center; justify-content: center; gap: 16px;
-    text-align: center; color: var(--text-muted);
-  }
-  .welcome-screen .logo { font-size: 64px; }
-  .welcome-screen h2 { color: var(--text-primary); font-size: 24px; }
-  .welcome-screen p { max-width: 440px; line-height: 1.6; }
-  .welcome-screen .create-first-btn {
-    padding: 10px 20px; border: none; border-radius: 4px;
-    background: var(--accent); color: #fff; font-size: 14px; font-weight: 600;
-    cursor: pointer; margin-top: 8px;
-  }
-  .welcome-screen .create-first-btn:hover { background: var(--accent-hover); }
-
-  /* --- Connected view --- */
   .connected-view { flex: 1; display: flex; flex-direction: column; gap: 12px; }
   .video-grid {
     flex: 1; display: flex; align-items: center; justify-content: center;
@@ -301,26 +361,32 @@
 <body>
 
 <div class="app">
-  <!-- ===== Server list ===== -->
+  <!-- ===== Server list (Leftmost bar) ===== -->
   <div class="server-list">
-    <div class="server-icon home" title="Free VDO">⚡</div>
+    <div class="server-icon home" title="Free VDO 大厅" onclick="selectLobby()">⚡</div>
     <div class="server-divider"></div>
-    <div class="server-icon add" title="创建语音频道" onclick="showCreateChannelModal()">+</div>
+    <!-- Clear distinct role: Join existing room by link/ID -->
+    <div class="server-icon join" title="输入邀请码/链接加入房间" onclick="showJoinByCodeModal()">+</div>
   </div>
 
-  <!-- ===== Sidebar ===== -->
+  <!-- ===== Sidebar (Channels) ===== -->
   <div class="sidebar">
     <div class="sidebar-header">Free VDO</div>
+    
+    <!-- Text Channels -->
     <div class="channel-category">文字频道</div>
     <div class="channel-list">
-      <div class="channel-item active">
+      <div class="channel-item active" id="channel-lobby-item" onclick="selectLobby()">
         <span class="icon">#</span>
         <span class="name">大厅</span>
       </div>
     </div>
+
+    <!-- Voice Channels -->
     <div class="channel-category">
       <span>语音频道</span>
-      <span class="add-ch-btn" onclick="showCreateChannelModal()" title="新建频道">+</span>
+      <!-- Clear distinct role: Create new channel inside this workspace -->
+      <span class="add-ch-btn" onclick="showCreateChannelModal()" title="新建语音房间">+</span>
     </div>
     <div class="channel-list" id="voice-channels">
       <!-- Rendered dynamically -->
@@ -343,38 +409,60 @@
   <!-- ===== Main Content ===== -->
   <div class="main-content">
     <div class="main-header">
-      <span class="icon" id="header-icon">💬</span>
+      <span class="icon" id="header-icon">#</span>
       <span class="title" id="header-title">大厅</span>
       <span class="divider"></span>
-      <span class="desc" id="header-desc">欢迎来到 Free VDO！点击左侧加号创建频道开始连麦</span>
-      <button class="invite-btn" id="btn-invite" style="display:none" onclick="showInviteModal()">📨 邀请</button>
+      <span class="desc" id="header-desc">公共文字频道 · 在这里可以与所有人自由交流</span>
+      <div class="header-btns">
+        <button class="back-voice-btn" id="btn-back-voice" style="display:none" onclick="returnToVoiceChannel()">🔊 返回连麦画面</button>
+        <button class="invite-btn" id="btn-invite" style="display:none" onclick="showInviteModal()">📨 邀请好友</button>
+      </div>
     </div>
 
-    <div class="video-area">
-      <!-- Welcome screen -->
-      <div class="welcome-screen" id="welcome-screen">
-        <div class="logo">⚡</div>
-        <h2>Free VDO</h2>
-        <p>基于 WebRTC 的点对点视频与屏幕共享平台。<br>点击左侧「+」或下方按钮创建专属语音房：</p>
-        <button class="create-first-btn" onclick="showCreateChannelModal()">+ 创建第一个语音房间</button>
-        <p style="font-size: 12px; color: var(--text-muted); margin-top: 16px;">
-          P2P 直连传输 · 超低延迟 · 端到端加密 · 免费无服务器开销
-        </p>
+    <div class="view-container">
+      <!-- Ongoing voice floating bar when browsing Lobby during active call -->
+      <div class="ongoing-voice-bar" id="ongoing-voice-bar" style="display: none;">
+        <div class="voice-live-dot"></div>
+        <div class="voice-title" id="ongoing-voice-name">正在语音频道通话中</div>
+        <div class="voice-actions">
+          <button class="btn-return-call" onclick="returnToVoiceChannel()">查看画面</button>
+          <button class="btn-hangup-call" onclick="leaveChannel()">挂断退出</button>
+        </div>
       </div>
 
-      <!-- Connected view -->
-      <div class="connected-view" id="connected-view" style="display: none;">
-        <div class="status-line">
-          <div class="status-dot" id="status-dot"></div>
-          <span id="status-text">正在连接...</span>
+      <!-- 1. Lobby Text Chat View -->
+      <div class="chat-area" id="chat-view">
+        <div class="chat-messages" id="chat-messages">
+          <div class="chat-welcome">
+            <div class="welcome-icon">#</div>
+            <h3>欢迎来到 #大厅！</h3>
+            <p>这是 Free VDO 的公共文字频道。可以在这里与在线好友实时聊天，或点击左侧语音频道开启高清 P2P 音视频连麦。</p>
+          </div>
+          <!-- Dynamic chat messages -->
         </div>
-        <div class="video-grid" id="video-grid"></div>
-        <div class="controls-bar">
-          <button class="ctrl-btn" id="btn-mic" onclick="toggleMic()" title="麦克风">🎤</button>
-          <button class="ctrl-btn" id="btn-cam" onclick="toggleCam()" title="摄像头">📹</button>
-          <button class="ctrl-btn" id="btn-screen" onclick="toggleScreen()" title="屏幕共享">🖥️</button>
-          <button class="ctrl-btn" id="btn-speaker" onclick="toggleSpeaker()" title="扬声器">🔊</button>
-          <button class="ctrl-btn danger" onclick="leaveChannel()" title="断开连接">📞</button>
+        <div class="chat-input-wrapper">
+          <div class="chat-input-box">
+            <input type="text" id="chat-input" placeholder="发送消息至 #大厅 (按 Enter 即可发送)..." maxlength="500">
+            <button onclick="sendLobbyMessage()">发送</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Voice/Video Call View -->
+      <div class="video-area" id="video-view" style="display: none;">
+        <div class="connected-view">
+          <div class="status-line">
+            <div class="status-dot" id="status-dot"></div>
+            <span id="status-text">正在通过信令建立 P2P 直连...</span>
+          </div>
+          <div class="video-grid" id="video-grid"></div>
+          <div class="controls-bar">
+            <button class="ctrl-btn" id="btn-mic" onclick="toggleMic()" title="麦克风">🎤</button>
+            <button class="ctrl-btn" id="btn-cam" onclick="toggleCam()" title="摄像头">📹</button>
+            <button class="ctrl-btn" id="btn-screen" onclick="toggleScreen()" title="屏幕共享">🖥️</button>
+            <button class="ctrl-btn" id="btn-speaker" onclick="toggleSpeaker()" title="扬声器">🔊</button>
+            <button class="ctrl-btn danger" onclick="leaveChannel()" title="断开连接">📞</button>
+          </div>
         </div>
       </div>
     </div>
@@ -382,7 +470,7 @@
 
   <!-- ===== Members sidebar ===== -->
   <div class="members-bar">
-    <div class="members-header" id="members-header">在线 — 0</div>
+    <div class="members-header" id="members-header">在线成员 — 1</div>
     <div class="member-list" id="member-list"></div>
   </div>
 </div>
@@ -415,17 +503,16 @@
   </div>
 </div>
 
-<!-- ===== Create Channel Modal ===== -->
+<!-- ===== Create Channel Modal (Sidebar +) ===== -->
 <div class="modal-overlay hidden" id="create-channel-modal">
   <div class="modal">
-    <h3>🔊 创建语音频道</h3>
+    <h3>🔊 创建新的语音频道</h3>
     <label>频道名称</label>
-    <input type="text" id="input-channel-name" placeholder="例如：周末开黑、产品评审" maxlength="30">
+    <input type="text" id="input-channel-name" placeholder="例如：周末开黑、技术讨论" maxlength="30">
     <label>房间密码（可选）</label>
     <input type="text" id="input-channel-password" placeholder="留空为公开房间，不设密码">
-    <div class="hint">设置密码后，其他朋友加入时需要验证密码</div>
+    <div class="hint">设置密码后，其他朋友加入时需要输入密码验证</div>
 
-    <!-- Invite link result -->
     <div class="invite-result" id="create-invite-result">
       <p>✅ 频道已创建！把专属链接发给朋友，对方点击即可直连：</p>
       <div class="invite-box">
@@ -441,13 +528,29 @@
   </div>
 </div>
 
+<!-- ===== Quick Join Modal (Leftmost Rail +) ===== -->
+<div class="modal-overlay hidden" id="join-code-modal">
+  <div class="modal">
+    <h3>🚪 加入已有房间</h3>
+    <label>输入邀请链接或房间ID</label>
+    <input type="text" id="input-join-code" placeholder="粘贴朋友发给你的完整邀请链接，或房间ID...">
+    <div class="hint">支持粘贴以 #room= 开头的专属链接，也支持纯房间名称</div>
+    <label>房间密码（如有）</label>
+    <input type="text" id="input-join-password" placeholder="无密码请留空">
+    <div class="btn-row">
+      <button class="btn-cancel" onclick="closeModal('join-code-modal')">取消</button>
+      <button class="btn-primary" onclick="handleJoinByCode()">立即加入</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===== Invite Modal ===== -->
 <div class="modal-overlay hidden" id="invite-modal">
   <div class="modal">
     <h3>📨 邀请朋友加入</h3>
     <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 14px;" id="invite-channel-info"></p>
 
-    <label>本站邀请链接（带完整界面）</label>
+    <label>本站邀请链接（推荐）</label>
     <div class="invite-box">
       <input type="text" id="invite-link" readonly onclick="this.select()">
       <button class="btn-green" onclick="copyInviteLink('invite-link')">复制链接</button>
@@ -485,6 +588,7 @@
 // ============ State ============
 const state = {
   username: '',
+  activeView: 'lobby', // 'lobby' or 'voice'
   currentChannel: null,
   currentChannelName: '',
   isMicOn: true,
@@ -497,8 +601,12 @@ const state = {
   bitrate: 2500,
   members: [],
   channels: [],
+  lobbyMessages: [],
   pendingInvite: null
 };
+
+// Realtime tab sync
+const chatBroadcast = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('freevdo-chat-sync') : null;
 
 // ============ Init ============
 (function init() {
@@ -521,15 +629,221 @@ const state = {
   if (savedChannels) {
     try {
       const custom = JSON.parse(savedChannels);
-      if (Array.isArray(custom)) {
-        state.channels = custom;
-      }
+      if (Array.isArray(custom)) state.channels = custom;
+    } catch(e) {}
+  }
+
+  // Load chat messages
+  const savedMessages = localStorage.getItem('freevdo-lobby-msgs');
+  if (savedMessages) {
+    try {
+      const parsed = JSON.parse(savedMessages);
+      if (Array.isArray(parsed)) state.lobbyMessages = parsed;
     } catch(e) {}
   }
 
   renderChannels();
+  renderLobbyMessages();
+  updateMemberList();
   parseInviteFromURL();
+
+  if (chatBroadcast) {
+    chatBroadcast.onmessage = (e) => {
+      if (e.data && e.data.type === 'new-msg') {
+        state.lobbyMessages.push(e.data.payload);
+        renderLobbyMessages();
+      }
+    };
+  }
 })();
+
+// ============ Navigation & Views ============
+function selectLobby() {
+  state.activeView = 'lobby';
+
+  // Update header
+  document.getElementById('header-icon').textContent = '#';
+  document.getElementById('header-title').textContent = '大厅';
+  document.getElementById('header-desc').textContent = '公共文字频道 · 在这里可以与所有人自由交流';
+
+  // Toggle active class on sidebar
+  document.getElementById('channel-lobby-item').classList.add('active');
+  document.querySelectorAll('#voice-channels .channel-item').forEach(el => el.classList.remove('active'));
+
+  // Toggle views
+  document.getElementById('chat-view').style.display = 'flex';
+  document.getElementById('video-view').style.display = 'none';
+  document.getElementById('btn-invite').style.display = 'none';
+
+  // If in voice call, show floating ongoing call bar
+  if (state.currentChannel) {
+    document.getElementById('ongoing-voice-bar').style.display = 'flex';
+    document.getElementById('ongoing-voice-name').textContent = `正在「${state.currentChannelName}」语音通话中`;
+    document.getElementById('btn-back-voice').style.display = 'inline-block';
+  } else {
+    document.getElementById('ongoing-voice-bar').style.display = 'none';
+    document.getElementById('btn-back-voice').style.display = 'none';
+  }
+
+  scrollToBottom();
+}
+
+function returnToVoiceChannel() {
+  if (!state.currentChannel) return;
+  state.activeView = 'voice';
+
+  document.getElementById('header-icon').textContent = '🔊';
+  document.getElementById('header-title').textContent = state.currentChannelName;
+  document.getElementById('header-desc').textContent = 'P2P 语音/视频通话 · 端到端直连加密';
+  document.getElementById('btn-invite').style.display = 'inline-block';
+  document.getElementById('btn-back-voice').style.display = 'none';
+
+  document.getElementById('channel-lobby-item').classList.remove('active');
+  document.querySelectorAll('#voice-channels .channel-item').forEach(el => {
+    if (el.dataset.id === state.currentChannel) el.classList.add('active');
+  });
+
+  document.getElementById('chat-view').style.display = 'none';
+  document.getElementById('video-view').style.display = 'flex';
+  document.getElementById('ongoing-voice-bar').style.display = 'none';
+}
+
+// ============ Lobby Chat System ============
+const avatarColors = ['#5865f2','#57f287','#fee75c','#eb459e','#ed4245','#f47b67','#e8a855'];
+
+function getAuthorColor(name) {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  return avatarColors[Math.abs(hash) % avatarColors.length];
+}
+
+function sendLobbyMessage() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  if (!state.username) {
+    showSettingsModal();
+    alert('请先设置你的昵称，才能在 #大厅 发送消息！');
+    return;
+  }
+
+  const now = new Date();
+  const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+
+  const message = {
+    id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
+    author: state.username,
+    text: text,
+    time: timeStr,
+    color: getAuthorColor(state.username)
+  };
+
+  state.lobbyMessages.push(message);
+  // Keep last 100 messages
+  if (state.lobbyMessages.length > 100) state.lobbyMessages.shift();
+  localStorage.setItem('freevdo-lobby-msgs', JSON.stringify(state.lobbyMessages));
+
+  input.value = '';
+  renderLobbyMessages();
+
+  // 1. Sync across browser tabs
+  if (chatBroadcast) {
+    chatBroadcast.postMessage({ type: 'new-msg', payload: message });
+  }
+
+  // 2. Broadcast via VDO.Ninja DataChannel if connected in call
+  postToIframe({ action: 'sendChat', value: `[#大厅] ${state.username}: ${text}` });
+}
+
+function renderLobbyMessages() {
+  const container = document.getElementById('chat-messages');
+  // Preserve welcome banner
+  const welcomeHtml = `
+    <div class="chat-welcome">
+      <div class="welcome-icon">#</div>
+      <h3>欢迎来到 #大厅！</h3>
+      <p>这是 Free VDO 的公共文字频道。可以在这里与在线好友实时聊天，或点击左侧语音频道开启高清 P2P 音视频连麦。</p>
+    </div>
+  `;
+
+  const msgsHtml = state.lobbyMessages.map(msg => `
+    <div class="chat-msg">
+      <div class="chat-msg-avatar" style="background:${msg.color || getAuthorColor(msg.author)}">
+        ${(msg.author || '?').charAt(0).toUpperCase()}
+      </div>
+      <div class="chat-msg-content">
+        <div class="chat-msg-header">
+          <span class="chat-msg-author">${escapeHtml(msg.author)}</span>
+          <span class="chat-msg-time">${msg.time || ''}</span>
+        </div>
+        <div class="chat-msg-text">${escapeHtml(msg.text)}</div>
+      </div>
+    </div>
+  `).join('');
+
+  container.innerHTML = welcomeHtml + msgsHtml;
+  scrollToBottom();
+}
+
+function scrollToBottom() {
+  const container = document.getElementById('chat-messages');
+  container.scrollTop = container.scrollHeight;
+}
+
+function escapeHtml(str) {
+  return (str || '').replace(/[&<>"']/g, m => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[m]);
+}
+
+// ============ Quick Join Modal (Left rail +) ============
+function showJoinByCodeModal() {
+  document.getElementById('input-join-code').value = '';
+  document.getElementById('input-join-password').value = '';
+  document.getElementById('join-code-modal').classList.remove('hidden');
+}
+
+function handleJoinByCode() {
+  const rawInput = document.getElementById('input-join-code').value.trim();
+  const pwdInput = document.getElementById('input-join-password').value.trim();
+  if (!rawInput) { alert('请输入邀请链接或房间ID'); return; }
+
+  let roomId = rawInput;
+  let roomName = rawInput;
+  let password = pwdInput;
+
+  // If user pasted a full URL or hash
+  if (rawInput.includes('#')) {
+    try {
+      const hashPart = rawInput.split('#')[1];
+      const params = new URLSearchParams(hashPart);
+      if (params.get('room')) roomId = params.get('room');
+      if (params.get('name')) roomName = params.get('name');
+      if (params.get('pwd')) password = params.get('pwd');
+    } catch(e) {}
+  } else if (rawInput.includes('?')) {
+    try {
+      const queryPart = rawInput.split('?')[1];
+      const params = new URLSearchParams(queryPart);
+      if (params.get('room')) {
+        roomId = params.get('room').replace(/^freevdo_/, '');
+        roomName = roomId;
+      }
+      if (params.get('password')) password = params.get('password');
+    } catch(e) {}
+  }
+
+  // Add to channels if not existing
+  if (!state.channels.find(c => c.id === roomId)) {
+    state.channels.push({ id: roomId, name: roomName, password: password || undefined });
+    saveCustomChannels();
+    renderChannels();
+  }
+
+  closeModal('join-code-modal');
+  joinVoiceChannel(roomId, roomName);
+}
 
 // ============ Invite Link System ============
 function generateInviteLink(channel) {
@@ -627,15 +941,16 @@ function copyInviteLink(inputId) {
 function renderChannels() {
   const container = document.getElementById('voice-channels');
   if (state.channels.length === 0) {
-    container.innerHTML = '<div class="empty-channel-tip">暂无语音房间<br>点击左上角「+」创建</div>';
+    container.innerHTML = '<div class="empty-channel-tip">暂无语音房间<br>点击右上角「+」创建</div>';
     return;
   }
 
   container.innerHTML = state.channels.map(ch => `
-    <div class="channel-item ${state.currentChannel === ch.id ? 'active' : ''}"
+    <div class="channel-item ${state.activeView === 'voice' && state.currentChannel === ch.id ? 'active' : ''}"
+         data-id="${ch.id}"
          onclick="joinVoiceChannel('${ch.id}', '${ch.name}')">
       <span class="icon">🔊</span>
-      <span class="name">${ch.name}</span>
+      <span class="name">${escapeHtml(ch.name)}</span>
       ${ch.password ? '<span class="lock" title="受密码保护">🔒</span>' : ''}
       <span class="ch-actions">
         <button class="ch-btn" onclick="event.stopPropagation(); quickInvite('${ch.id}')" title="复制邀请链接">📨</button>
@@ -677,25 +992,33 @@ function joinVoiceChannel(channelId, channelName) {
     alert('请先设置你的昵称！');
     return;
   }
-  if (state.currentChannel === channelId) return;
+  if (state.currentChannel === channelId) {
+    returnToVoiceChannel();
+    return;
+  }
   if (state.currentChannel) destroyIframe();
 
   state.currentChannel = channelId;
   state.currentChannelName = channelName;
+  state.activeView = 'voice';
 
-  document.getElementById('welcome-screen').style.display = 'none';
-  document.getElementById('connected-view').style.display = 'flex';
   document.getElementById('header-icon').textContent = '🔊';
   document.getElementById('header-title').textContent = channelName;
   document.getElementById('header-desc').textContent = 'P2P 语音/视频通话 · 端到端直连加密';
-  document.getElementById('btn-invite').style.display = 'block';
+  document.getElementById('btn-invite').style.display = 'inline-block';
+  document.getElementById('btn-back-voice').style.display = 'none';
   document.getElementById('status-text').textContent = '正在通过信令建立 P2P 直连...';
   document.getElementById('status-dot').className = 'status-dot connecting';
   document.getElementById('my-status').textContent = `在频道「${channelName}」`;
 
+  document.getElementById('chat-view').style.display = 'none';
+  document.getElementById('video-view').style.display = 'flex';
+  document.getElementById('ongoing-voice-bar').style.display = 'none';
+  document.getElementById('channel-lobby-item').classList.remove('active');
+
   renderChannels();
   createIframe(channelId);
-  addMember(state.username, true);
+  updateMemberList();
 }
 
 function leaveChannel() {
@@ -703,21 +1026,13 @@ function leaveChannel() {
   destroyIframe();
   state.currentChannel = null;
   state.currentChannelName = '';
-  state.members = [];
 
-  document.getElementById('welcome-screen').style.display = 'flex';
-  document.getElementById('connected-view').style.display = 'none';
-  document.getElementById('header-icon').textContent = '💬';
-  document.getElementById('header-title').textContent = '大厅';
-  document.getElementById('header-desc').textContent = '欢迎来到 Free VDO！点击左侧加号创建频道开始连麦';
-  document.getElementById('btn-invite').style.display = 'none';
   document.getElementById('my-status').textContent = '在线';
-  document.getElementById('member-list').innerHTML = '';
-  document.getElementById('members-header').textContent = '在线 — 0';
-
   state.isMicOn = true; state.isCamOn = true; state.isScreenOn = false; state.isSpeakerOn = true;
   updateControlButtons();
+  selectLobby();
   renderChannels();
+  updateMemberList();
 }
 
 // ============ VDO.Ninja IFRAME ============
@@ -765,11 +1080,27 @@ function handleIframeMessage(e) {
   if (!state.iframe || e.source !== state.iframe.contentWindow) return;
   const data = e.data;
   if (!data) return;
+
   if (data.action === 'joined-room' || data.dataReceived) {
     if (data.streamID) addMember(data.label || data.streamID, false);
   }
   if (data.action === 'disconnected' || data.action === 'left-room') {
     if (data.streamID) removeMember(data.label || data.streamID);
+  }
+  // Incoming chat message from P2P peers
+  if (data.chatMessage || (data.action === 'chat' && data.msg)) {
+    const rawMsg = data.chatMessage || data.msg;
+    const author = data.sender || data.label || '好友';
+    const now = new Date();
+    const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+    state.lobbyMessages.push({
+      id: Date.now().toString(36),
+      author: author,
+      text: rawMsg,
+      time: timeStr,
+      color: getAuthorColor(author)
+    });
+    renderLobbyMessages();
   }
 }
 
@@ -803,27 +1134,27 @@ function updateControlButtons() {
 }
 
 // ============ Members ============
-const avatarColors = ['#5865f2','#57f287','#fee75c','#eb459e','#ed4245','#f47b67','#e8a855'];
 function addMember(name, isSelf) {
   if (state.members.find(m => m.name === name)) return;
-  state.members.push({ name, isSelf, color: avatarColors[state.members.length % avatarColors.length] });
-  renderMembers();
+  state.members.push({ name, isSelf, color: getAuthorColor(name) });
+  updateMemberList();
 }
 function removeMember(name) {
   state.members = state.members.filter(m => m.name !== name);
-  renderMembers();
+  updateMemberList();
 }
-function renderMembers() {
-  document.getElementById('member-list').innerHTML = state.members.map(m => `
+function updateMemberList() {
+  const currentMembers = state.members.length > 0 ? state.members : (state.username ? [{ name: state.username, isSelf: true, color: getAuthorColor(state.username) }] : []);
+  document.getElementById('member-list').innerHTML = currentMembers.map(m => `
     <div class="member-item">
       <div class="member-avatar" style="background:${m.color}">
         ${m.name.charAt(0).toUpperCase()}
         <div class="status-badge" style="background:var(--green)"></div>
       </div>
-      <span class="member-name">${m.name}${m.isSelf ? ' (你)' : ''}</span>
+      <span class="member-name">${escapeHtml(m.name)}${m.isSelf ? ' (你)' : ''}</span>
     </div>
   `).join('');
-  document.getElementById('members-header').textContent = `在频道中 — ${state.members.length}`;
+  document.getElementById('members-header').textContent = `在线成员 — ${currentMembers.length}`;
 }
 
 // ============ Modals & Settings ============
@@ -858,6 +1189,7 @@ function saveSettings() {
   localStorage.setItem('freevdo-server', state.server);
   document.getElementById('my-username').textContent = state.username;
   document.getElementById('my-avatar').textContent = state.username.charAt(0).toUpperCase();
+  updateMemberList();
   closeModal('settings-modal');
   if (state.currentChannel) {
     const ch = state.currentChannel, name = state.currentChannelName;
@@ -900,9 +1232,15 @@ document.querySelectorAll('.modal-overlay').forEach(o => {
   o.addEventListener('click', e => { if (e.target === o) o.classList.add('hidden'); });
 });
 document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay').forEach(m => m.classList.add('hidden'));
+  }
+  // Send chat on Enter in chat input
+  if (e.key === 'Enter' && document.activeElement === document.getElementById('chat-input')) {
+    sendLobbyMessage();
+  }
   if (['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)) return;
   if (e.key === 'm' || e.key === 'M') toggleMic();
-  if (e.key === 'Escape' && state.currentChannel) leaveChannel();
 });
 </script>
 </body>
