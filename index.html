@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Free VDO 鈥?Powered by VDO.Ninja</title>
+<title>Free VDO — P2P 语音与视频通话</title>
 <style>
   /* ============ Reset & Base ============ */
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -23,7 +23,7 @@
     --red: #f23f43;
     --yellow: #fee75c;
     --channel-hover: #35373c;
-    --font: 'Segoe UI', 'Noto Sans SC', 'Helvetica Neue', Arial, sans-serif;
+    --font: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
   }
   html, body { height: 100%; font-family: var(--font); background: var(--bg-dark); color: var(--text-primary); overflow: hidden; }
 
@@ -68,7 +68,12 @@
     font-size: 12px; font-weight: 700;
     text-transform: uppercase; color: var(--text-muted);
     letter-spacing: 0.02em;
+    display: flex; justify-content: space-between; align-items: center;
   }
+  .channel-category .add-ch-btn {
+    cursor: pointer; font-size: 16px; color: var(--text-muted);
+  }
+  .channel-category .add-ch-btn:hover { color: var(--text-primary); }
   .channel-list { flex: 1; overflow-y: auto; padding: 0 8px; }
   .channel-item {
     display: flex; align-items: center; gap: 8px;
@@ -92,6 +97,10 @@
   .channel-item .ch-btn:hover { background: var(--bg-light); color: var(--text-primary); }
   .channel-item .lock { font-size: 12px; opacity: 0.5; }
 
+  .empty-channel-tip {
+    padding: 24px 12px; font-size: 13px; color: var(--text-muted); text-align: center; line-height: 1.6;
+  }
+
   /* User panel */
   .user-panel {
     height: 52px; padding: 0 8px;
@@ -104,7 +113,7 @@
     font-size: 14px; font-weight: 600;
   }
   .user-info { flex: 1; min-width: 0; }
-  .user-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+  .user-name { font-size: 13px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .user-status { font-size: 11px; color: var(--green); }
   .user-panel-btns { display: flex; gap: 4px; }
   .user-panel-btns button {
@@ -147,7 +156,13 @@
   }
   .welcome-screen .logo { font-size: 64px; }
   .welcome-screen h2 { color: var(--text-primary); font-size: 24px; }
-  .welcome-screen p { max-width: 400px; line-height: 1.6; }
+  .welcome-screen p { max-width: 440px; line-height: 1.6; }
+  .welcome-screen .create-first-btn {
+    padding: 10px 20px; border: none; border-radius: 4px;
+    background: var(--accent); color: #fff; font-size: 14px; font-weight: 600;
+    cursor: pointer; margin-top: 8px;
+  }
+  .welcome-screen .create-first-btn:hover { background: var(--accent-hover); }
 
   /* --- Connected view --- */
   .connected-view { flex: 1; display: flex; flex-direction: column; gap: 12px; }
@@ -265,10 +280,6 @@
   }
   .invite-result.show { display: block; }
   .invite-result p { font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; line-height: 1.5; }
-  .invite-result .link-text {
-    font-size: 13px; color: var(--accent); word-break: break-all;
-    font-weight: 600; line-height: 1.6;
-  }
 
   /* Toast notification */
   .toast {
@@ -291,22 +302,25 @@
 <div class="app">
   <!-- ===== Server list ===== -->
   <div class="server-list">
-    <div class="server-icon home" title="Free VDO">鈿?/div>
+    <div class="server-icon home" title="Free VDO">⚡</div>
     <div class="server-divider"></div>
-    <div class="server-icon add" title="鍒涘缓璇煶棰戦亾" onclick="showCreateChannelModal()">+</div>
+    <div class="server-icon add" title="创建语音频道" onclick="showCreateChannelModal()">+</div>
   </div>
 
   <!-- ===== Sidebar ===== -->
   <div class="sidebar">
     <div class="sidebar-header">Free VDO</div>
-    <div class="channel-category">鏂囧瓧棰戦亾</div>
+    <div class="channel-category">文字频道</div>
     <div class="channel-list">
       <div class="channel-item active">
         <span class="icon">#</span>
-        <span class="name">澶у巺</span>
+        <span class="name">大厅</span>
       </div>
     </div>
-    <div class="channel-category">璇煶棰戦亾</div>
+    <div class="channel-category">
+      <span>语音频道</span>
+      <span class="add-ch-btn" onclick="showCreateChannelModal()" title="新建频道">+</span>
+    </div>
     <div class="channel-list" id="voice-channels">
       <!-- Rendered dynamically -->
     </div>
@@ -315,12 +329,12 @@
     <div class="user-panel">
       <div class="user-avatar" id="my-avatar">?</div>
       <div class="user-info">
-        <div class="user-name" id="my-username">鏈缃樀绉?/div>
-        <div class="user-status" id="my-status">鍦ㄧ嚎</div>
+        <div class="user-name" id="my-username">未设置昵称</div>
+        <div class="user-status" id="my-status">在线</div>
       </div>
       <div class="user-panel-btns">
-        <button onclick="toggleMic()" id="btn-mic-small" title="楹﹀厠椋?>馃帳</button>
-        <button onclick="showSettingsModal()" title="璁剧疆">鈿欙笍</button>
+        <button onclick="toggleMic()" id="btn-mic-small" title="麦克风">🎤</button>
+        <button onclick="showSettingsModal()" title="设置">⚙️</button>
       </div>
     </div>
   </div>
@@ -328,22 +342,22 @@
   <!-- ===== Main Content ===== -->
   <div class="main-content">
     <div class="main-header">
-      <span class="icon" id="header-icon">馃挰</span>
-      <span class="title" id="header-title">澶у巺</span>
+      <span class="icon" id="header-icon">💬</span>
+      <span class="title" id="header-title">大厅</span>
       <span class="divider"></span>
-      <span class="desc" id="header-desc">娆㈣繋鏉ュ埌 Free VDO锛侀€夋嫨涓€涓闊抽閬撳姞鍏?/span>
-      <button class="invite-btn" id="btn-invite" style="display:none" onclick="showInviteModal()">馃摠 閭€璇?/button>
+      <span class="desc" id="header-desc">欢迎来到 Free VDO！点击左侧加号创建频道开始连麦</span>
+      <button class="invite-btn" id="btn-invite" style="display:none" onclick="showInviteModal()">📨 邀请</button>
     </div>
 
     <div class="video-area">
       <!-- Welcome screen -->
       <div class="welcome-screen" id="welcome-screen">
-        <div class="logo">鈿?/div>
+        <div class="logo">⚡</div>
         <h2>Free VDO</h2>
-        <p>鍩轰簬 VDO.Ninja 鐨勭偣瀵圭偣瑙嗛閫氳瘽銆?br>閫夋嫨宸︿晶鐨勮闊抽閬撳嵆鍙姞鍏ャ€?/p>
-        <p style="font-size: 12px; color: var(--text-muted);">
-          鎶€鏈唴鏍革細WebRTC P2P Mesh<br>
-          寤惰繜 &lt; 100ms 路 绔埌绔姞瀵?路 闆舵湇鍔″櫒鎴愭湰
+        <p>基于 WebRTC 的点对点视频与屏幕共享平台。<br>点击左侧「+」或下方按钮创建专属语音房：</p>
+        <button class="create-first-btn" onclick="showCreateChannelModal()">+ 创建第一个语音房间</button>
+        <p style="font-size: 12px; color: var(--text-muted); margin-top: 16px;">
+          P2P 直连传输 · 超低延迟 · 端到端加密 · 免费无服务器开销
         </p>
       </div>
 
@@ -351,15 +365,15 @@
       <div class="connected-view" id="connected-view" style="display: none;">
         <div class="status-line">
           <div class="status-dot" id="status-dot"></div>
-          <span id="status-text">姝ｅ湪杩炴帴...</span>
+          <span id="status-text">正在连接...</span>
         </div>
         <div class="video-grid" id="video-grid"></div>
         <div class="controls-bar">
-          <button class="ctrl-btn" id="btn-mic" onclick="toggleMic()" title="楹﹀厠椋?>馃帳</button>
-          <button class="ctrl-btn" id="btn-cam" onclick="toggleCam()" title="鎽勫儚澶?>馃摴</button>
-          <button class="ctrl-btn" id="btn-screen" onclick="toggleScreen()" title="灞忓箷鍏变韩">馃枼锔?/button>
-          <button class="ctrl-btn" id="btn-speaker" onclick="toggleSpeaker()" title="鎵０鍣?>馃攰</button>
-          <button class="ctrl-btn danger" onclick="leaveChannel()" title="鏂紑杩炴帴">馃摓</button>
+          <button class="ctrl-btn" id="btn-mic" onclick="toggleMic()" title="麦克风">🎤</button>
+          <button class="ctrl-btn" id="btn-cam" onclick="toggleCam()" title="摄像头">📹</button>
+          <button class="ctrl-btn" id="btn-screen" onclick="toggleScreen()" title="屏幕共享">🖥️</button>
+          <button class="ctrl-btn" id="btn-speaker" onclick="toggleSpeaker()" title="扬声器">🔊</button>
+          <button class="ctrl-btn danger" onclick="leaveChannel()" title="断开连接">📞</button>
         </div>
       </div>
     </div>
@@ -367,7 +381,7 @@
 
   <!-- ===== Members sidebar ===== -->
   <div class="members-bar">
-    <div class="members-header" id="members-header">鍦ㄧ嚎 鈥?0</div>
+    <div class="members-header" id="members-header">在线 — 0</div>
     <div class="member-list" id="member-list"></div>
   </div>
 </div>
@@ -378,24 +392,24 @@
 <!-- ===== Settings Modal ===== -->
 <div class="modal-overlay hidden" id="settings-modal">
   <div class="modal">
-    <h3>鈿欙笍 鐢ㄦ埛璁剧疆</h3>
-    <label>鏄电О</label>
-    <input type="text" id="input-username" placeholder="杈撳叆浣犵殑鏄电О..." maxlength="20">
-    <label>瑙嗛璐ㄩ噺</label>
+    <h3>⚙️ 用户设置</h3>
+    <label>昵称</label>
+    <input type="text" id="input-username" placeholder="输入你的昵称..." maxlength="20">
+    <label>视频质量</label>
     <select id="input-quality">
-      <option value="0">鑷姩</option>
-      <option value="1" selected>楂樻竻 (720p)</option>
-      <option value="2">瓒呮竻 (1080p)</option>
+      <option value="0">自动</option>
+      <option value="1" selected>高清 (720p)</option>
+      <option value="2">超清 (1080p)</option>
     </select>
-    <label>瑙嗛鐮佺巼 (kbps)</label>
+    <label>视频码率 (kbps)</label>
     <input type="number" id="input-bitrate" value="2500" min="500" max="20000" step="500">
-    <div class="hint">鎺ㄨ崘锛?20p 鐢?2500锛?080p 鐢?6000</div>
-    <label>VDO.Ninja 鏈嶅姟鍣?/label>
+    <div class="hint">推荐：720p 用 2500，1080p 用 6000</div>
+    <label>VDO.Ninja 服务地址</label>
     <input type="text" id="input-server" value="https://vdo.ninja" placeholder="https://vdo.ninja">
-    <div class="hint">鍙浛鎹负鑷儴缃茬殑鏈嶅姟鍣ㄥ湴鍧€</div>
+    <div class="hint">默认使用官方公开信令，也可配置自建服务器</div>
     <div class="btn-row">
-      <button class="btn-cancel" onclick="closeModal('settings-modal')">鍙栨秷</button>
-      <button class="btn-primary" onclick="saveSettings()">淇濆瓨</button>
+      <button class="btn-cancel" onclick="closeModal('settings-modal')">取消</button>
+      <button class="btn-primary" onclick="saveSettings()">保存</button>
     </div>
   </div>
 </div>
@@ -403,25 +417,25 @@
 <!-- ===== Create Channel Modal ===== -->
 <div class="modal-overlay hidden" id="create-channel-modal">
   <div class="modal">
-    <h3>馃攰 鍒涘缓璇煶棰戦亾</h3>
-    <label>棰戦亾鍚嶇О</label>
-    <input type="text" id="input-channel-name" placeholder="渚嬪锛氬懆鏈紑榛? maxlength="30">
-    <label>鎴块棿瀵嗙爜锛堝彲閫夛級</label>
-    <input type="text" id="input-channel-password" placeholder="鐣欑┖涓轰笉璁惧瘑鐮?>
-    <div class="hint">璁剧疆瀵嗙爜鍚庯紝浠栦汉闇€杈撳叆瀵嗙爜鎵嶈兘鍔犲叆</div>
+    <h3>🔊 创建语音频道</h3>
+    <label>频道名称</label>
+    <input type="text" id="input-channel-name" placeholder="例如：周末开黑、产品评审" maxlength="30">
+    <label>房间密码（可选）</label>
+    <input type="text" id="input-channel-password" placeholder="留空为公开房间，不设密码">
+    <div class="hint">设置密码后，其他朋友加入时需要验证密码</div>
 
-    <!-- Invite link result (shown after creation) -->
+    <!-- Invite link result -->
     <div class="invite-result" id="create-invite-result">
-      <p>鉁?棰戦亾宸插垱寤猴紒鎶婁笅闈㈢殑閾炬帴鍙戠粰鏈嬪弸锛屼粬浠墦寮€灏辫兘鐩存帴鍔犲叆锛?/p>
+      <p>✅ 频道已创建！把专属链接发给朋友，对方点击即可直连：</p>
       <div class="invite-box">
         <input type="text" id="create-invite-link" readonly onclick="this.select()">
-        <button class="btn-green" onclick="copyInviteLink('create-invite-link')">澶嶅埗</button>
+        <button class="btn-green" onclick="copyInviteLink('create-invite-link')">复制</button>
       </div>
     </div>
 
     <div class="btn-row">
-      <button class="btn-cancel" onclick="closeModal('create-channel-modal')">鍙栨秷</button>
-      <button class="btn-primary" id="btn-create-channel" onclick="createChannel()">鍒涘缓棰戦亾</button>
+      <button class="btn-cancel" onclick="closeModal('create-channel-modal')">取消</button>
+      <button class="btn-primary" id="btn-create-channel" onclick="createChannel()">立即创建</button>
     </div>
   </div>
 </div>
@@ -429,25 +443,25 @@
 <!-- ===== Invite Modal ===== -->
 <div class="modal-overlay hidden" id="invite-modal">
   <div class="modal">
-    <h3>馃摠 閭€璇锋湅鍙嬪姞鍏?/h3>
+    <h3>📨 邀请朋友加入</h3>
     <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 14px;" id="invite-channel-info"></p>
 
-    <label>閭€璇烽摼鎺?/label>
+    <label>本站邀请链接（带完整界面）</label>
     <div class="invite-box">
       <input type="text" id="invite-link" readonly onclick="this.select()">
-      <button class="btn-green" onclick="copyInviteLink('invite-link')">澶嶅埗閾炬帴</button>
+      <button class="btn-green" onclick="copyInviteLink('invite-link')">复制链接</button>
     </div>
-    <div class="hint">鏈嬪弸鎵撳紑杩欎釜閾炬帴锛岃濂芥樀绉板悗灏辫兘鍔犲叆浣犳墍鍦ㄧ殑棰戦亾</div>
+    <div class="hint">朋友在浏览器打开后输入昵称即可秒级加入</div>
 
-    <label>鎴栬€呯洿鎺ョ敤 VDO.Ninja 閾炬帴鍔犲叆锛堟棤闇€鏈綉绔欙級</label>
+    <label>VDO.Ninja 原生直连链接（无需进入本站）</label>
     <div class="invite-box">
       <input type="text" id="invite-vdo-link" readonly onclick="this.select()">
-      <button class="btn-green" onclick="copyInviteLink('invite-vdo-link')">澶嶅埗閾炬帴</button>
+      <button class="btn-green" onclick="copyInviteLink('invite-vdo-link')">复制链接</button>
     </div>
-    <div class="hint">杩欎釜閾炬帴鐩存帴鎵撳紑 VDO.Ninja锛屼笉闇€瑕佹湰缃戠珯锛屼篃鑳借繛鍏ュ悓涓€涓埧闂?/div>
+    <div class="hint">如果朋友无法访问本站域名，可以直接发这个链接进入同一房间</div>
 
     <div class="btn-row">
-      <button class="btn-primary" onclick="closeModal('invite-modal')">瀹屾垚</button>
+      <button class="btn-primary" onclick="closeModal('invite-modal')">完成</button>
     </div>
   </div>
 </div>
@@ -455,13 +469,13 @@
 <!-- ===== Join from Invite Modal ===== -->
 <div class="modal-overlay hidden" id="join-invite-modal">
   <div class="modal">
-    <h3>馃帀 浣犳敹鍒颁簡涓€涓個璇凤紒</h3>
+    <h3>🎉 收到房间加入邀请</h3>
     <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 14px;" id="join-invite-info"></p>
-    <label>浣犵殑鏄电О</label>
-    <input type="text" id="join-invite-username" placeholder="杈撳叆浣犵殑鏄电О..." maxlength="20">
+    <label>设置你的昵称</label>
+    <input type="text" id="join-invite-username" placeholder="输入昵称后进入..." maxlength="20">
     <div class="btn-row">
-      <button class="btn-cancel" onclick="declineInvite()">鏆備笉鍔犲叆</button>
-      <button class="btn-green" onclick="acceptInvite()">馃攰 鍔犲叆棰戦亾</button>
+      <button class="btn-cancel" onclick="declineInvite()">暂不加入</button>
+      <button class="btn-green" onclick="acceptInvite()">🔊 确认加入</button>
     </div>
   </div>
 </div>
@@ -482,12 +496,11 @@ const state = {
   bitrate: 2500,
   members: [],
   channels: [],
-  pendingInvite: null  // { id, name, password }
+  pendingInvite: null
 };
 
 // ============ Init ============
 (function init() {
-  // Load saved settings
   const saved = localStorage.getItem('freevdo-username');
   if (saved) {
     state.username = saved;
@@ -503,28 +516,21 @@ const state = {
     }
   });
 
-  // Load custom channels
   const savedChannels = localStorage.getItem('freevdo-channels');
   if (savedChannels) {
     try {
       const custom = JSON.parse(savedChannels);
-      custom.forEach(ch => {
-        if (!state.channels.find(c => c.id === ch.id)) {
-          state.channels.push(ch);
-        }
-      });
+      if (Array.isArray(custom)) {
+        state.channels = custom;
+      }
     } catch(e) {}
   }
 
   renderChannels();
-
-  // 鈽?Parse invite link from URL hash
   parseInviteFromURL();
 })();
 
 // ============ Invite Link System ============
-
-// Generate invite link for a channel
 function generateInviteLink(channel) {
   const base = window.location.origin + window.location.pathname;
   const params = new URLSearchParams();
@@ -534,15 +540,13 @@ function generateInviteLink(channel) {
   return base + '#' + params.toString();
 }
 
-// Generate a direct VDO.Ninja link for a channel
 function generateVDOLink(channel) {
   const roomName = 'freevdo_' + channel.id;
-  let url = state.server + '/?room=' + encodeURIComponent(roomName) + '&webcam&label=Guest';
+  let url = state.server + '/?room=' + encodeURIComponent(roomName) + '&push&cleanoutput&label=Guest';
   if (channel.password) url += '&password=' + encodeURIComponent(channel.password);
   return url;
 }
 
-// Parse invite info from URL hash on page load
 function parseInviteFromURL() {
   const hash = window.location.hash;
   if (!hash || hash.length < 2) return;
@@ -554,24 +558,19 @@ function parseInviteFromURL() {
     if (!roomId || !roomName) return;
 
     const password = params.get('pwd') || '';
-
-    // Store pending invite
     state.pendingInvite = { id: roomId, name: roomName, password };
 
-    // Add this channel if not already present
     if (!state.channels.find(c => c.id === roomId)) {
       state.channels.push({ id: roomId, name: roomName, password: password || undefined });
       saveCustomChannels();
       renderChannels();
     }
 
-    // Show join modal
     document.getElementById('join-invite-info').textContent =
-      `浣犺閭€璇峰姞鍏ヨ闊抽閬撱€?{roomName}銆?{password ? '锛堥渶瑕佸瘑鐮侊級' : ''}`;
-    document.getElementById('join-invite-username').value = state.username;
+      `你被邀请加入语音频道「${roomName}」${password ? '（带密码保护）' : ''}`;
+    document.getElementById('join-invite-username').value = state.username || '';
     document.getElementById('join-invite-modal').classList.remove('hidden');
 
-    // Clean URL hash (so refreshing doesn't re-trigger)
     history.replaceState(null, '', window.location.pathname + window.location.search);
   } catch(e) {
     console.error('Failed to parse invite URL:', e);
@@ -580,9 +579,8 @@ function parseInviteFromURL() {
 
 function acceptInvite() {
   const username = document.getElementById('join-invite-username').value.trim();
-  if (!username) { alert('璇疯緭鍏ユ樀绉?); return; }
+  if (!username) { alert('请输入你的昵称'); return; }
 
-  // Save username
   state.username = username;
   localStorage.setItem('freevdo-username', username);
   document.getElementById('my-username').textContent = username;
@@ -590,7 +588,6 @@ function acceptInvite() {
 
   closeModal('join-invite-modal');
 
-  // Join the channel
   if (state.pendingInvite) {
     joinVoiceChannel(state.pendingInvite.id, state.pendingInvite.name);
     state.pendingInvite = null;
@@ -608,7 +605,7 @@ function showInviteModal() {
   if (!ch) return;
 
   document.getElementById('invite-channel-info').textContent =
-    `鎶婇摼鎺ュ垎浜粰鏈嬪弸锛岄個璇蜂粬浠姞鍏ャ€?{ch.name}銆嶉閬揱;
+    `分享以下链接邀请好友加入「${ch.name}」：`;
   document.getElementById('invite-link').value = generateInviteLink(ch);
   document.getElementById('invite-vdo-link').value = generateVDOLink(ch);
   document.getElementById('invite-modal').classList.remove('hidden');
@@ -618,24 +615,29 @@ function copyInviteLink(inputId) {
   const input = document.getElementById(inputId);
   input.select();
   navigator.clipboard.writeText(input.value).then(() => {
-    showToast('鉁?閾炬帴宸插鍒跺埌鍓创鏉匡紒');
+    showToast('✅ 链接已复制到剪贴板！');
   }).catch(() => {
     document.execCommand('copy');
-    showToast('鉁?閾炬帴宸插鍒讹紒');
+    showToast('✅ 链接已复制！');
   });
 }
 
 // ============ Channel Management ============
 function renderChannels() {
   const container = document.getElementById('voice-channels');
+  if (state.channels.length === 0) {
+    container.innerHTML = '<div class="empty-channel-tip">暂无语音房间<br>点击左上角「+」创建</div>';
+    return;
+  }
+
   container.innerHTML = state.channels.map(ch => `
     <div class="channel-item ${state.currentChannel === ch.id ? 'active' : ''}"
          onclick="joinVoiceChannel('${ch.id}', '${ch.name}')">
-      <span class="icon">馃攰</span>
+      <span class="icon">🔊</span>
       <span class="name">${ch.name}</span>
-      ${ch.password ? '<span class="lock">馃敀</span>' : ''}
+      ${ch.password ? '<span class="lock" title="受密码保护">🔒</span>' : ''}
       <span class="ch-actions">
-        <button class="ch-btn" onclick="event.stopPropagation(); quickInvite('${ch.id}')" title="澶嶅埗閭€璇烽摼鎺?>馃摠</button>
+        <button class="ch-btn" onclick="event.stopPropagation(); quickInvite('${ch.id}')" title="复制邀请链接">📨</button>
       </span>
     </div>
   `).join('');
@@ -646,17 +648,16 @@ function quickInvite(channelId) {
   if (!ch) return;
   const link = generateInviteLink(ch);
   navigator.clipboard.writeText(link).then(() => {
-    showToast(`鉁?銆?{ch.name}銆嶇殑閭€璇烽摼鎺ュ凡澶嶅埗锛乣);
+    showToast(`✅ 已复制「${ch.name}」邀请链接！`);
   }).catch(() => {
-    // Fallback: show invite modal
-    prompt('澶嶅埗杩欎釜閭€璇烽摼鎺ワ細', link);
+    prompt('复制该房间专属邀请链接：', link);
   });
 }
 
 function joinVoiceChannel(channelId, channelName) {
   if (!state.username) {
     showSettingsModal();
-    alert('璇峰厛璁剧疆浣犵殑鏄电О锛?);
+    alert('请先设置你的昵称！');
     return;
   }
   if (state.currentChannel === channelId) return;
@@ -665,16 +666,15 @@ function joinVoiceChannel(channelId, channelName) {
   state.currentChannel = channelId;
   state.currentChannelName = channelName;
 
-  // Update UI
   document.getElementById('welcome-screen').style.display = 'none';
   document.getElementById('connected-view').style.display = 'flex';
-  document.getElementById('header-icon').textContent = '馃攰';
+  document.getElementById('header-icon').textContent = '🔊';
   document.getElementById('header-title').textContent = channelName;
-  document.getElementById('header-desc').textContent = 'P2P 璇煶/瑙嗛 路 WebRTC 鍔犲瘑鐩磋繛';
+  document.getElementById('header-desc').textContent = 'P2P 语音/视频通话 · 端到端直连加密';
   document.getElementById('btn-invite').style.display = 'block';
-  document.getElementById('status-text').textContent = '姝ｅ湪杩炴帴...';
+  document.getElementById('status-text').textContent = '正在通过信令建立 P2P 直连...';
   document.getElementById('status-dot').className = 'status-dot connecting';
-  document.getElementById('my-status').textContent = `鍦?${channelName}`;
+  document.getElementById('my-status').textContent = `在频道「${channelName}」`;
 
   renderChannels();
   createIframe(channelId);
@@ -690,13 +690,13 @@ function leaveChannel() {
 
   document.getElementById('welcome-screen').style.display = 'flex';
   document.getElementById('connected-view').style.display = 'none';
-  document.getElementById('header-icon').textContent = '馃挰';
-  document.getElementById('header-title').textContent = '澶у巺';
-  document.getElementById('header-desc').textContent = '娆㈣繋鏉ュ埌 Free VDO锛侀€夋嫨涓€涓闊抽閬撳姞鍏?;
+  document.getElementById('header-icon').textContent = '💬';
+  document.getElementById('header-title').textContent = '大厅';
+  document.getElementById('header-desc').textContent = '欢迎来到 Free VDO！点击左侧加号创建频道开始连麦';
   document.getElementById('btn-invite').style.display = 'none';
-  document.getElementById('my-status').textContent = '鍦ㄧ嚎';
+  document.getElementById('my-status').textContent = '在线';
   document.getElementById('member-list').innerHTML = '';
-  document.getElementById('members-header').textContent = '鍦ㄧ嚎 鈥?0';
+  document.getElementById('members-header').textContent = '在线 — 0';
 
   state.isMicOn = true; state.isCamOn = true; state.isScreenOn = false; state.isSpeakerOn = true;
   updateControlButtons();
@@ -732,7 +732,7 @@ function createIframe(channelId) {
 
   setTimeout(() => {
     if (state.currentChannel === channelId) {
-      document.getElementById('status-text').textContent = `宸茶繛鎺ュ埌 ${state.currentChannelName} 路 P2P 鍔犲瘑`;
+      document.getElementById('status-text').textContent = `已接入房间「${state.currentChannelName}」· P2P 通信已就绪`;
       document.getElementById('status-dot').className = 'status-dot';
     }
   }, 3000);
@@ -754,7 +754,6 @@ function handleIframeMessage(e) {
   if (data.action === 'disconnected' || data.action === 'left-room') {
     if (data.streamID) removeMember(data.label || data.streamID);
   }
-  if (data.action) console.log('[VDO.Ninja]', data);
 }
 
 function postToIframe(msg) {
@@ -776,13 +775,13 @@ function updateControlButtons() {
   const speaker = document.getElementById('btn-speaker');
   const micSmall = document.getElementById('btn-mic-small');
 
-  mic.textContent = state.isMicOn ? '馃帳' : '馃攪';
+  mic.textContent = state.isMicOn ? '🎤' : '🔇';
   mic.className = state.isMicOn ? 'ctrl-btn' : 'ctrl-btn muted';
-  micSmall.textContent = state.isMicOn ? '馃帳' : '馃攪';
-  cam.textContent = state.isCamOn ? '馃摴' : '馃摲';
+  if (micSmall) micSmall.textContent = state.isMicOn ? '🎤' : '🔇';
+  cam.textContent = state.isCamOn ? '📹' : '📷';
   cam.className = state.isCamOn ? 'ctrl-btn' : 'ctrl-btn muted';
   screen.style.boxShadow = state.isScreenOn ? '0 0 0 2px var(--green)' : 'none';
-  speaker.textContent = state.isSpeakerOn ? '馃攰' : '馃攬';
+  speaker.textContent = state.isSpeakerOn ? '🔊' : '🔈';
   speaker.className = state.isSpeakerOn ? 'ctrl-btn' : 'ctrl-btn muted';
 }
 
@@ -804,10 +803,10 @@ function renderMembers() {
         ${m.name.charAt(0).toUpperCase()}
         <div class="status-badge" style="background:var(--green)"></div>
       </div>
-      <span class="member-name">${m.name}${m.isSelf ? ' (浣?' : ''}</span>
+      <span class="member-name">${m.name}${m.isSelf ? ' (你)' : ''}</span>
     </div>
   `).join('');
-  document.getElementById('members-header').textContent = `鍦ㄩ閬撲腑 鈥?${state.members.length}`;
+  document.getElementById('members-header').textContent = `在频道中 — ${state.members.length}`;
 }
 
 // ============ Modals & Settings ============
@@ -818,6 +817,7 @@ function showSettingsModal() {
   document.getElementById('input-server').value = state.server;
   document.getElementById('settings-modal').classList.remove('hidden');
 }
+
 function showCreateChannelModal() {
   document.getElementById('input-channel-name').value = '';
   document.getElementById('input-channel-password').value = '';
@@ -825,11 +825,12 @@ function showCreateChannelModal() {
   document.getElementById('btn-create-channel').style.display = '';
   document.getElementById('create-channel-modal').classList.remove('hidden');
 }
+
 function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
 function saveSettings() {
   const username = document.getElementById('input-username').value.trim();
-  if (!username) { alert('璇疯緭鍏ユ樀绉?); return; }
+  if (!username) { alert('请输入昵称'); return; }
   state.username = username;
   state.quality = parseInt(document.getElementById('input-quality').value);
   state.bitrate = parseInt(document.getElementById('input-bitrate').value);
@@ -850,7 +851,7 @@ function saveSettings() {
 
 function createChannel() {
   const name = document.getElementById('input-channel-name').value.trim();
-  if (!name) { alert('璇疯緭鍏ラ閬撳悕绉?); return; }
+  if (!name) { alert('请输入频道名称'); return; }
 
   const id = name.replace(/[^a-zA-Z0-9\u4e00-\u9fff]/g, '').substring(0, 20) + '_' + Date.now().toString(36);
   const password = document.getElementById('input-channel-password').value.trim();
@@ -860,7 +861,6 @@ function createChannel() {
   saveCustomChannels();
   renderChannels();
 
-  // Show invite link
   const link = generateInviteLink(channel);
   document.getElementById('create-invite-link').value = link;
   document.getElementById('create-invite-result').classList.add('show');
@@ -871,7 +871,6 @@ function saveCustomChannels() {
   localStorage.setItem('freevdo-channels', JSON.stringify(state.channels));
 }
 
-// ============ Toast ============
 function showToast(message) {
   const toast = document.getElementById('toast');
   toast.textContent = message;
@@ -891,4 +890,3 @@ document.addEventListener('keydown', e => {
 </script>
 </body>
 </html>
-
